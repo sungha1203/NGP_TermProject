@@ -1,0 +1,95 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="소스 파일">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="헤더 파일">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="헤더 파일\카메라">
+      <UniqueIdentifier>{1364428a-9b9c-45c3-9973-ca1d17ef9f88}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\조명">
+      <UniqueIdentifier>{9694a3a2-1a3f-43e7-8dcb-9f698c8dd421}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\PCH">
+      <UniqueIdentifier>{cfe71c8a-bb36-4ded-bf46-f3e5e06bd652}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\쉐이더">
+      <UniqueIdentifier>{9703eb5a-8324-4913-b9aa-8bc9e370a7fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\텍스쳐">
+      <UniqueIdentifier>{7307ac6d-a27b-429a-ba20-babe81a9fb73}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\OBB">
+      <UniqueIdentifier>{fa800705-a2f1-4871-827a-9551fdb9bc59}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\미로">
+      <UniqueIdentifier>{07596b15-bd74-4550-a819-d1214f3171f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\구체">
+      <UniqueIdentifier>{49a5ac6e-5106-4f6e-b3c2-fb024eb20be5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="CGTP.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="camera.cpp">
+      <Filter>헤더 파일\카메라</Filter>
+    </ClCompile>
+    <ClCompile Include="light.cpp">
+      <Filter>헤더 파일\조명</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>헤더 파일\PCH</Filter>
+    </ClCompile>
+    <ClCompile Include="OBB_check.cpp">
+      <Filter>헤더 파일\OBB</Filter>
+    </ClCompile>
+    <ClCompile Include="maze.cpp">
+      <Filter>헤더 파일\미로</Filter>
+    </ClCompile>
+    <ClCompile Include="sphere.cpp">
+      <Filter>헤더 파일\구체</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="camera.h">
+      <Filter>헤더 파일\카메라</Filter>
+    </ClInclude>
+    <ClInclude Include="light.h">
+      <Filter>헤더 파일\조명</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>헤더 파일\PCH</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadImage.h">
+      <Filter>헤더 파일\텍스쳐</Filter>
+    </ClInclude>
+    <ClInclude Include="OBB_check.h">
+      <Filter>헤더 파일\OBB</Filter>
+    </ClInclude>
+    <ClInclude Include="maze.h">
+      <Filter>헤더 파일\미로</Filter>
+    </ClInclude>
+    <ClInclude Include="sphere.h">
+      <Filter>헤더 파일\구체</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="fragment_light.glsl">
+      <Filter>헤더 파일\쉐이더</Filter>
+    </None>
+    <None Include="vertex_light.glsl">
+      <Filter>헤더 파일\쉐이더</Filter>
+    </None>
+  </ItemGroup>
+</Project>
