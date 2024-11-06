@@ -1,3 +1,4 @@
+//임시 변경
 #include "stdafx.h"
 #define _CRT_SECURE_NO_WARNINGS //--- 프로그램 맨 앞에 선언할 것
 #define STB_IMAGE_IMPLEMENTATION
