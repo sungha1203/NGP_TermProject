@@ -1,8 +1,3 @@
-//임시 변경
-//임시 변경2
-//임시 변경3
-//임시 변경4
-//임시 변경5 인혁
 #include "stdafx.h"
 #define _CRT_SECURE_NO_WARNINGS //--- 프로그램 맨 앞에 선언할 것
 #define STB_IMAGE_IMPLEMENTATION
