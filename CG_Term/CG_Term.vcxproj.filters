@@ -83,6 +83,9 @@
     <ClInclude Include="sphere.h">
       <Filter>헤더 파일\구체</Filter>
     </ClInclude>
+    <ClInclude Include="Common.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="fragment_light.glsl">

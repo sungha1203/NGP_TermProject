@@ -11,10 +11,16 @@
 
 #include <chrono>
 #include <thread>
+#include"Common.h"
+
 using namespace std;
 using namespace glm;
 #define SOUND_FILE_NAME "walking_wav"
 #pragma comment(lib,"winmm")
+#define SERVERPORT 9000
+#define BUFSIZE    512
+
+char* SERVERIP;
 
 void make_vertexShaders();
 void make_fragmentShaders();
@@ -39,6 +45,7 @@ Light light_minimap;
 vec2 oldmouse;
 vec2 newmouse;
 vec3 camerapos{ -12.0f,0.2f,-9.5f };
+vec3 playerpos{ -12.0f,0.2f,-9.5f };
 
 
 vector <glm::vec3> D_vertex;
@@ -364,7 +371,7 @@ struct make_item {
 	GLuint m_VBOColor;
 	float rotateAngle[3] = { 0 };
 	float revolutionAngle[3] = { 0 };
-	float scale[3] = { 3.f,3.f,3.f };
+	float scale[3] = { 1.f,1.f,1.f };
 	vec3 color;
 	vec3 move_pos;
 	glm::mat4 model_matrix = glm::mat4(1.0f); //단위행렬로 초기화
@@ -1108,7 +1115,7 @@ void Find_min_max(vec3& min, vec3& max, vec3& vertex)
 		max.z = vertex.z;
 }
 void objectcollsion();
-bool door_collision();                                                               
+bool door_collision();
 struct FACES
 {
 	vector <vec3> max_vertex;                                       //크기가 [1032]
@@ -1147,7 +1154,18 @@ CAMERA camera;
 CAMERA minimap_camera;
 vector <SPHERE> sphere;
 FACES Face;
-void main(int argc, char** argv) {//--- 윈도우 출력하고 콜백함수 설정
+int main(int argc, char** argv) {//--- 윈도우 출력하고 콜백함수 설정
+
+	if (argc == 1)
+	{
+		SERVERIP = "127.0.0.2";
+	}
+	else
+	{
+		SERVERIP = argv[1];
+	}
+
+
 	glutInit(&argc, argv); // glut 초기화
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH); // 디스플레이 모드 설정
 
@@ -1495,6 +1513,32 @@ void drawScene()
 
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glViewport(g_width * 4 / 5, g_height * 4 / 5, g_width / 5, g_height / 5);
+	}
+
+	int retval;
+	char* buffer;
+	// 윈속 초기화
+	WSADATA wsa;
+	WSAStartup(MAKEWORD(2, 2), &wsa);
+
+	// 소켓 생성
+	SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);
+	if (sock == INVALID_SOCKET) err_quit("socket()");
+
+	// connect()
+	struct sockaddr_in serveraddr;
+	memset(&serveraddr, 0, sizeof(serveraddr));
+	serveraddr.sin_family = AF_INET;
+	inet_pton(AF_INET, SERVERIP, &serveraddr.sin_addr);
+	serveraddr.sin_port = htons(SERVERPORT);
+	retval = connect(sock, (struct sockaddr*)&serveraddr, sizeof(serveraddr));
+	if (retval == SOCKET_ERROR) err_quit("connect()");
+
+	int len = sizeof(camerapos);
+	// 데이터 보내기(고정 길이)
+	retval = send(sock, reinterpret_cast<const char*>(&camerapos), len, 0);
+	if (retval == SOCKET_ERROR) {
+		err_display("send()");
 	}
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
@@ -1891,7 +1935,6 @@ void make_fragmentShaders() {
 	glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
 	glCompileShader(fragmentShader);
 	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &result);
-	cout << fragmentSource;
 	if (!result)
 	{
 		glGetShaderInfoLog(fragmentShader, 512, NULL, errorLog);
