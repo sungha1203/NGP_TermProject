@@ -37,6 +37,9 @@
     <Filter Include="헤더 파일\구체">
       <UniqueIdentifier>{49a5ac6e-5106-4f6e-b3c2-fb024eb20be5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="헤더 파일\Player">
+      <UniqueIdentifier>{ee960eac-14d3-4dbf-b3e2-d48c13209432}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CGTP.cpp">
@@ -59,6 +62,9 @@
     </ClCompile>
     <ClCompile Include="sphere.cpp">
       <Filter>헤더 파일\구체</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>헤더 파일\Player</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -85,6 +91,9 @@
     </ClInclude>
     <ClInclude Include="Common.h">
       <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>헤더 파일\Player</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

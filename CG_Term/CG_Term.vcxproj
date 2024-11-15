@@ -156,6 +156,7 @@
     <ClCompile Include="light.cpp" />
     <ClCompile Include="maze.cpp" />
     <ClCompile Include="OBB_check.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="sphere.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -171,6 +172,7 @@
     <ClInclude Include="LoadImage.h" />
     <ClInclude Include="maze.h" />
     <ClInclude Include="OBB_check.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="sphere.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>

@@ -99,6 +99,7 @@ void ReadObj(const std::string objfilename, std::vector<glm::vec3>& vertex, std:
 		vertex.push_back(vertexData[abs((int)(iter->y)) - 1]);
 		vertex.push_back(vertexData[abs((int)(iter->z)) - 1]);                     //버텍스 좌표
 	}
+
 	for (auto iter = vtface.begin(); iter < vtface.end(); iter++) {
 		vtVertex.push_back(cordinaterData[abs((int)(iter->x)) - 1]);
 		vtVertex.push_back(cordinaterData[abs((int)(iter->y)) - 1]);

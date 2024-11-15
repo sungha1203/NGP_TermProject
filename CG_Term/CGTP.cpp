@@ -7,6 +7,7 @@
 #include "OBB_check.h"
 #include "maze.h"
 #include "sphere.h"
+#include "Player.h"
 #include <mmsystem.h>
 
 #include <chrono>
@@ -75,6 +76,10 @@ vector <glm::vec2> mode_vt;
 
 vector <glm::vec3> xyz_vertex;
 vector <glm::vec3> hint_vertex;
+
+vector <glm::vec3> Player_vertex;
+vector <glm::vec3> Player_normal;
+vector <glm::vec2> Player_vt;
 
 //----------------전역 변수------------------
 float g_width = 1000;
@@ -988,6 +993,7 @@ struct make_ghost {
 		glDrawArrays(GL_TRIANGLES, 0, ghost_vertex.size());
 	}
 };
+
 struct make_mode {
 	GLuint m_VBOVertex;
 	GLuint m_VBONormal;
@@ -1133,6 +1139,7 @@ struct FACES
 	}
 };
 
+vector <make_Player> Player;
 vector <MAZE> maze;
 vector <make_item> item;
 vector <make_mode> mode;
@@ -1147,6 +1154,8 @@ CAMERA camera;
 CAMERA minimap_camera;
 vector <SPHERE> sphere;
 FACES Face;
+
+
 void main(int argc, char** argv) {//--- 윈도우 출력하고 콜백함수 설정
 	glutInit(&argc, argv); // glut 초기화
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH); // 디스플레이 모드 설정
@@ -1174,6 +1183,8 @@ void main(int argc, char** argv) {//--- 윈도우 출력하고 콜백함수 설정
 	ReadObj("sphere.obj", S_vertex, S_normal, S_vt);
 	ReadObj("planeMode.obj", mode_vertex, mode_normal, mode_vt);
 
+	ReadObj("cube.obj", Player_vertex, Player_normal, Player_vt);
+
 	for (int i = 0; i < S_vertex.size(); ++i)
 	{
 		S_vertex[i].y += 0.5f;
@@ -1194,6 +1205,9 @@ void main(int argc, char** argv) {//--- 윈도우 출력하고 콜백함수 설정
 	key.emplace_back(2);
 	mode.emplace_back(0);
 	mode.emplace_back(1);
+
+	Player.emplace_back(); //플레이어 생성
+
 	for (int i = 0; i < 20; ++i) {
 		ghost.emplace_back(i);
 	}
@@ -1378,6 +1392,8 @@ void drawScene()
 		bottom[0].draw();
 		plane[0].draw();
 		plane[1].draw();
+		Player[0].Draw(Player_vertex, Player_normal, Player_vt, shaderProgramID);
+
 		for (auto& doors : door)
 		{
 			doors.draw();
@@ -1887,11 +1903,21 @@ void make_vertexShaders() {
 void make_fragmentShaders() {
 	GLchar* fragmentSource;
 	fragmentSource = filetobuf("fragment_light.glsl");
+	int fIdx = 0;
+	while (fragmentSource[fIdx] != '\0') { // '\0' 문자까지 반복
+		if (fragmentSource[fIdx] == '#') { // '#' 문자를 만나면 탈출
+			fIdx++;
+			break;
+		}
+		fIdx++;
+	}
+	const char* temp;
+	temp = &fragmentSource[fIdx-1];
 	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
+	glShaderSource(fragmentShader, 1, &temp, NULL);
 	glCompileShader(fragmentShader);
 	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &result);
-	cout << fragmentSource;
+	cout << temp;
 	if (!result)
 	{
 		glGetShaderInfoLog(fragmentShader, 512, NULL, errorLog);
