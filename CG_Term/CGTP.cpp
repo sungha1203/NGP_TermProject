@@ -89,6 +89,9 @@ bool creativemode = FALSE;
 bool light_button = TRUE;
 bool isWalking = GL_FALSE; // 산책 중 여부를 나타내는 변수 추가
 unsigned int texture[9];
+
+GLuint textures[8]; //마리오 전용 텍스처 ID 배열
+
 vec3 CMPOS;
 int item_navi = 0;
 int item_where = 0;
@@ -1183,7 +1186,7 @@ void main(int argc, char** argv) {//--- 윈도우 출력하고 콜백함수 설정
 	ReadObj("sphere.obj", S_vertex, S_normal, S_vt);
 	ReadObj("planeMode.obj", mode_vertex, mode_normal, mode_vt);
 
-	ReadObj("cube.obj", Player_vertex, Player_normal, Player_vt);
+	ReadObj("Mario.obj", Player_vertex, Player_normal, Player_vt);
 
 	for (int i = 0; i < S_vertex.size(); ++i)
 	{
@@ -1313,6 +1316,43 @@ void main(int argc, char** argv) {//--- 윈도우 출력하고 콜백함수 설정
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texutreData9);				//---텍스처 이미지 정의
 	stbi_image_free(texutreData9);
 
+
+	const char* textureFiles[8] = {
+	"textures/mario1.jpg",
+	"textures/mario2.jpg",
+	"textures/mario3.jpg",
+	"textures/mario4.jpg",
+	"textures/mario5.jpg",
+	"textures/mario6.jpg",
+	"textures/mario7.jpg",
+	"textures/mario8.jpg"
+	};
+
+	for (int i = 0; i < 8; i++) {
+		glBindTexture(GL_TEXTURE_2D, textures[i]); // 텍스처 바인딩
+
+		// 텍스처 파라미터 설정
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		// 텍스처 이미지 로드
+		int width, height, numberOfChannel;
+		unsigned char* textureData = stbi_load(textureFiles[i], &width, &height, &numberOfChannel, 4);
+
+		if (textureData) {
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, textureData);
+			stbi_image_free(textureData); // 이미지 데이터 해제
+		}
+		else {
+			cout << "텍스쳐 로드 실패: " << textureFiles[i] << endl;
+		}
+	}
+
+	glBindTexture(GL_TEXTURE_2D, 0); // 텍스처 바인딩 해제
+
+
 	maze[0].makeBB(D_vertex);
 	glutTimerFunc(17, Timer, CamMove);
 	light_minimap.lightpos = { 0,28,0 };
@@ -1385,14 +1425,15 @@ void drawScene()
 	else if (Mode == 1) {			//인게임 화면
 		light.draw(camerapos, shaderProgramID, light_button);
 		camera.rotate_camera();
-		camera.Draw(camerapos, shaderProgramID, perspective_projection);
+		camera.InGameDraw(camerapos, shaderProgramID, perspective_projection);
 		maze[0].Draw(D_vertex, D_normal, D_vt, shaderProgramID);
 		plane[0].draw();
-		camera.Draw(camerapos, shaderProgramID, perspective_projection);
 		bottom[0].draw();
 		plane[0].draw();
 		plane[1].draw();
-		Player[0].Draw(Player_vertex, Player_normal, Player_vt, shaderProgramID);
+
+		//camerapos, camera.cameraAt를 인자로 받아와 주인공의 위치와 바라보는 방향을 정해줌.
+		Player[0].Draw(camerapos, camera.cameraAt, Player_vertex, Player_normal, Player_vt, shaderProgramID);
 
 		for (auto& doors : door)
 		{
@@ -1729,20 +1770,28 @@ GLvoid KeyBoardFunc(unsigned char key, int x, int y)
 			camerapos = CMPOS;
 		break;
 	case 'd':
-		if (Mode == 1)
+		if (Mode == 1) {
 			camera.direction = Right;
+			//Player[0].direction = Right;
+		}
 		break;
 	case 'a':
-		if (Mode == 1)
+		if (Mode == 1) {
 			camera.direction = Left;
+			//Player[0].direction = Left;
+		}
 		break;
 	case 'w':
-		if (Mode == 1)
+		if (Mode == 1) {
 			camera.direction = Up;
+			Player[0].direction = Up;
+		}
 		break;
 	case 's':
-		if (Mode == 1)
+		if (Mode == 1) {
 			camera.direction = Down;
+			//Player[0].direction = Down;
+		}
 		break;
 	case'm':
 		button_m = !button_m;
@@ -1792,11 +1841,9 @@ GLvoid KeyBoardFunc(unsigned char key, int x, int y)
 
 GLvoid KeyBoardUpFunc(unsigned char key, int x, int y)
 {
-
-
 	// 나머지 키들의 로직도 유사하게 추가
-
 	camera.direction = Stop;
+	Player[0].direction = Stop;
 }
 
 

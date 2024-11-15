@@ -24,6 +24,7 @@ public:
 	glm::vec3 camerleft;
 
 	void Draw(glm::vec3 Camerapos, GLuint ID,type a);
+	void InGameDraw(glm::vec3 Camerapos, GLuint ID, type a);
 	void Move(float x, float y);
 	void rotate_camera();
 private:
