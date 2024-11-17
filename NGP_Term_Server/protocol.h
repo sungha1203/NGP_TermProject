@@ -14,3 +14,55 @@
 
 #define SERVERPORT 9000
 #define BUFSIZE    512
+
+constexpr int MaxUser = 2;		//클라 맥스 유저 수
+
+// 1. 플레이어 좌표
+// 2. 아이템 위치
+// 3. 키 위치
+// 4. 문 열림 정도
+// 5. 유령 좌표
+// 6. 게임 종료 패킷
+
+struct PlayerCoordPacket {
+	char size;
+	char type;
+	float X;
+	float y;
+	float z;
+};
+struct ItemCoordPacket {
+	char size;
+	char type;
+	float X;
+	float y;
+	float z;
+	bool IsUsed; //사용 되었는지
+	int ability; //무슨 아이템인지
+};
+struct KeyCoordPacket {
+	char size;
+	char type;
+	float X;
+	float y;
+	float z;
+	bool IsFind; //찾았는지
+};
+struct DoorOpenPacket {
+	char size;
+	char type;
+	int num; // 문 번호
+	bool value; // 조건체크
+};
+struct GhostCoordPacket {
+	char size;
+	char type;
+	float X;
+	float y;
+	float z;
+	int num; // 귀신 번호
+};
+struct GameOverPacket {
+	char size;
+	char type;
+};
