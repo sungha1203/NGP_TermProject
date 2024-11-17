@@ -8,6 +8,7 @@
 #include "maze.h"
 #include "sphere.h"
 #include "Player.h"
+#include "network.h"
 #include <mmsystem.h>
 
 #include <chrono>
@@ -33,6 +34,10 @@ GLuint vertexShader;    //--- 버텍스 세이더 객체
 GLuint fragmentShader;
 GLint result;
 GLchar errorLog[512];
+//-------------------------------------------
+
+//--------------네트워크 통신----------------
+Network network;
 //-------------------------------------------
 
 Light light;
@@ -1160,6 +1165,9 @@ FACES Face;
 
 
 void main(int argc, char** argv) {//--- 윈도우 출력하고 콜백함수 설정
+	//--------------------------------------------------------------------------------------------
+	if (!network.IsConnect()) return;
+	//--------------------------------------------------------------------------------------------
 	glutInit(&argc, argv); // glut 초기화
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH); // 디스플레이 모드 설정
 
@@ -1222,100 +1230,101 @@ void main(int argc, char** argv) {//--- 윈도우 출력하고 콜백함수 설정
 	int width = 1024;
 	int height = 1024;
 	int numberOfChannel = 0;
-	stbi_set_flip_vertically_on_load(true);
-	glGenTextures(8, texture);																					    //--- 텍스처 생성
-	//벽돌 텍스쳐
-	glBindTexture(GL_TEXTURE_2D, texture[0]);                                                       //--- 텍스처 바인딩
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);                                        //--- 현재 바인딩된 텍스처의 파라미터 설정하기
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	unsigned char* texutreData1 = stbi_load("redBlock.jpg", &width, &height, &numberOfChannel, 4);                  //맨 마지막 인자가 너비가 4픽셀이 되게 하는 인자
-	//jpg니까 GL_RGBA로 로드
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texutreData1);              //---텍스처 이미지 정의
-	stbi_image_free(texutreData1);
+	{
+		stbi_set_flip_vertically_on_load(true);
+		glGenTextures(8, texture);																					    //--- 텍스처 생성
+		//벽돌 텍스쳐
+		glBindTexture(GL_TEXTURE_2D, texture[0]);                                                       //--- 텍스처 바인딩
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);                                        //--- 현재 바인딩된 텍스처의 파라미터 설정하기
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		unsigned char* texutreData1 = stbi_load("redBlock.jpg", &width, &height, &numberOfChannel, 4);                  //맨 마지막 인자가 너비가 4픽셀이 되게 하는 인자
+		//jpg니까 GL_RGBA로 로드
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texutreData1);              //---텍스처 이미지 정의
+		stbi_image_free(texutreData1);
 
-	//랜덤 박스 텍스쳐
-	glBindTexture(GL_TEXTURE_2D, texture[1]);                                                       //--- 텍스처 바인딩
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);                                        //--- 현재 바인딩된 텍스처의 파라미터 설정하기
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	unsigned char* texutreData2 = stbi_load("RandomBox.jpg", &width, &height, &numberOfChannel, 4);               //맨 마지막 인자가 너비가 4픽셀이 되게 하는 인자
-	//jpg니까 GL_RGBA로 로드
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texutreData2);             //---텍스처 이미지 정의
-	stbi_image_free(texutreData2);
+		//랜덤 박스 텍스쳐
+		glBindTexture(GL_TEXTURE_2D, texture[1]);                                                       //--- 텍스처 바인딩
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);                                        //--- 현재 바인딩된 텍스처의 파라미터 설정하기
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		unsigned char* texutreData2 = stbi_load("RandomBox.jpg", &width, &height, &numberOfChannel, 4);               //맨 마지막 인자가 너비가 4픽셀이 되게 하는 인자
+		//jpg니까 GL_RGBA로 로드
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texutreData2);             //---텍스처 이미지 정의
+		stbi_image_free(texutreData2);
 
-	glBindTexture(GL_TEXTURE_2D, texture[2]);                                                       //--- 텍스처 바인딩
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);                                       //--- 현재 바인딩된 텍스처의 파라미터 설정하기
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	unsigned char* texutreData3 = stbi_load("wall.jpg", &width, &height, &numberOfChannel, 4);                  //맨 마지막 인자가 너비가 4픽셀이 되게 하는 인자
-	//jpg니까 GL_RGBA로 로드
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texutreData3);            //---텍스처 이미지 정의
-	stbi_image_free(texutreData3);
+		glBindTexture(GL_TEXTURE_2D, texture[2]);                                                       //--- 텍스처 바인딩
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);                                       //--- 현재 바인딩된 텍스처의 파라미터 설정하기
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		unsigned char* texutreData3 = stbi_load("wall.jpg", &width, &height, &numberOfChannel, 4);                  //맨 마지막 인자가 너비가 4픽셀이 되게 하는 인자
+		//jpg니까 GL_RGBA로 로드
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texutreData3);            //---텍스처 이미지 정의
+		stbi_image_free(texutreData3);
 
-	glBindTexture(GL_TEXTURE_2D, texture[3]);                                                       //--- 텍스처 바인딩
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);                                       //--- 현재 바인딩된 텍스처의 파라미터 설정하기
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	unsigned char* texutreData4 = stbi_load("sea.jpg", &width, &height, &numberOfChannel, 4);                  //맨 마지막 인자가 너비가 4픽셀이 되게 하는 인자
-	//jpg니까 GL_RGBA로 로드
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texutreData4);            //---텍스처 이미지 정의
-	stbi_image_free(texutreData4);
+		glBindTexture(GL_TEXTURE_2D, texture[3]);                                                       //--- 텍스처 바인딩
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);                                       //--- 현재 바인딩된 텍스처의 파라미터 설정하기
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		unsigned char* texutreData4 = stbi_load("sea.jpg", &width, &height, &numberOfChannel, 4);                  //맨 마지막 인자가 너비가 4픽셀이 되게 하는 인자
+		//jpg니까 GL_RGBA로 로드
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texutreData4);            //---텍스처 이미지 정의
+		stbi_image_free(texutreData4);
 
-	glBindTexture(GL_TEXTURE_2D, texture[4]);                                                       //--- 텍스처 바인딩
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);                                       //--- 현재 바인딩된 텍스처의 파라미터 설정하기
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	unsigned char* texutreData5 = stbi_load("door.jpg", &width, &height, &numberOfChannel, 4);                  //맨 마지막 인자가 너비가 4픽셀이 되게 하는 인자
-	//jpg니까 GL_RGBA로 로드
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texutreData5);            //---텍스처 이미지 정의
-	stbi_image_free(texutreData5);
+		glBindTexture(GL_TEXTURE_2D, texture[4]);                                                       //--- 텍스처 바인딩
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);                                       //--- 현재 바인딩된 텍스처의 파라미터 설정하기
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		unsigned char* texutreData5 = stbi_load("door.jpg", &width, &height, &numberOfChannel, 4);                  //맨 마지막 인자가 너비가 4픽셀이 되게 하는 인자
+		//jpg니까 GL_RGBA로 로드
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texutreData5);            //---텍스처 이미지 정의
+		stbi_image_free(texutreData5);
 
-	glBindTexture(GL_TEXTURE_2D, texture[5]);                                                       //--- 텍스처 바인딩
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);                                       //--- 현재 바인딩된 텍스처의 파라미터 설정하기
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	unsigned char* texutreData6 = stbi_load("key.jpg", &width, &height, &numberOfChannel, 4);                  //맨 마지막 인자가 너비가 4픽셀이 되게 하는 인자
-	//jpg니까 GL_RGBA로 로드
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texutreData6);            //---텍스처 이미지 정의
-	stbi_image_free(texutreData6);
+		glBindTexture(GL_TEXTURE_2D, texture[5]);                                                       //--- 텍스처 바인딩
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);                                       //--- 현재 바인딩된 텍스처의 파라미터 설정하기
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		unsigned char* texutreData6 = stbi_load("key.jpg", &width, &height, &numberOfChannel, 4);                  //맨 마지막 인자가 너비가 4픽셀이 되게 하는 인자
+		//jpg니까 GL_RGBA로 로드
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texutreData6);            //---텍스처 이미지 정의
+		stbi_image_free(texutreData6);
 
-	glBindTexture(GL_TEXTURE_2D, texture[6]);                                                       //--- 텍스처 바인딩
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);                                       //--- 현재 바인딩된 텍스처의 파라미터 설정하기
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	unsigned char* texutreData7 = stbi_load("ghost.jpg", &width, &height, &numberOfChannel, 4);                  //맨 마지막 인자가 너비가 4픽셀이 되게 하는 인자
-	//jpg니까 GL_RGBA로 로드
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texutreData7);            //---텍스처 이미지 정의
-	stbi_image_free(texutreData7);
+		glBindTexture(GL_TEXTURE_2D, texture[6]);                                                       //--- 텍스처 바인딩
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);                                       //--- 현재 바인딩된 텍스처의 파라미터 설정하기
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		unsigned char* texutreData7 = stbi_load("ghost.jpg", &width, &height, &numberOfChannel, 4);                  //맨 마지막 인자가 너비가 4픽셀이 되게 하는 인자
+		//jpg니까 GL_RGBA로 로드
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texutreData7);            //---텍스처 이미지 정의
+		stbi_image_free(texutreData7);
 
-	glBindTexture(GL_TEXTURE_2D, texture[7]);																	    //--- 텍스처 바인딩
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);													//--- 현재 바인딩된 텍스처의 파라미터 설정하기
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	unsigned char* texutreData8 = stbi_load("start.jpg", &width, &height, &numberOfChannel, 4);						//맨 마지막 인자가 너비가 4픽셀이 되게 하는 인자
-	//jpg니까 GL_RGBA로 로드
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texutreData8);				//---텍스처 이미지 정의
-	stbi_image_free(texutreData8);
+		glBindTexture(GL_TEXTURE_2D, texture[7]);																	    //--- 텍스처 바인딩
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);													//--- 현재 바인딩된 텍스처의 파라미터 설정하기
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		unsigned char* texutreData8 = stbi_load("start.jpg", &width, &height, &numberOfChannel, 4);						//맨 마지막 인자가 너비가 4픽셀이 되게 하는 인자
+		//jpg니까 GL_RGBA로 로드
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texutreData8);				//---텍스처 이미지 정의
+		stbi_image_free(texutreData8);
 
-	glBindTexture(GL_TEXTURE_2D, texture[8]);																	    //--- 텍스처 바인딩
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);													//--- 현재 바인딩된 텍스처의 파라미터 설정하기
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	unsigned char* texutreData9 = stbi_load("end.jpg", &width, &height, &numberOfChannel, 4);						//맨 마지막 인자가 너비가 4픽셀이 되게 하는 인자
-	//jpg니까 GL_RGBA로 로드
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texutreData9);				//---텍스처 이미지 정의
-	stbi_image_free(texutreData9);
-
+		glBindTexture(GL_TEXTURE_2D, texture[8]);																	    //--- 텍스처 바인딩
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);													//--- 현재 바인딩된 텍스처의 파라미터 설정하기
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		unsigned char* texutreData9 = stbi_load("end.jpg", &width, &height, &numberOfChannel, 4);						//맨 마지막 인자가 너비가 4픽셀이 되게 하는 인자
+		//jpg니까 GL_RGBA로 로드
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texutreData9);				//---텍스처 이미지 정의
+		stbi_image_free(texutreData9);
+	}
 
 	const char* textureFiles[8] = {
 	"textures/mario1.jpg",

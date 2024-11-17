@@ -153,8 +153,10 @@
   <ItemGroup>
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="CGTP.cpp" />
+    <ClCompile Include="error.cpp" />
     <ClCompile Include="light.cpp" />
     <ClCompile Include="maze.cpp" />
+    <ClCompile Include="network.cpp" />
     <ClCompile Include="OBB_check.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="sphere.cpp" />
@@ -167,12 +169,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
-    <ClInclude Include="Common.h" />
+    <ClInclude Include="error.h" />
     <ClInclude Include="light.h" />
     <ClInclude Include="LoadImage.h" />
     <ClInclude Include="maze.h" />
+    <ClInclude Include="network.h" />
     <ClInclude Include="OBB_check.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="protocol.h" />
     <ClInclude Include="sphere.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
