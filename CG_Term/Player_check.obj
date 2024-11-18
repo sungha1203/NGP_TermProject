@@ -1,0 +1,24 @@
+# 3ds Max Wavefront OBJ Exporter v0.99 - (c)2007 guruware
+# File Created: 18.11.2024 22:34:59
+
+mtllib Player_check.mtl
+
+#
+# object Line001
+#
+
+v  5.7785 1.9244 0.0000
+v  -5.7768 1.9550 0.0000
+v  -0.0018 -3.8794 -0.0000
+# 3 vertices
+
+vn 0.0000 -0.0000 1.0000
+# 1 vertex normals
+
+o Line001
+g Line001
+usemtl wire_154154229
+s 1
+f 1/0/1 2/0/1 3/0/1
+# 1 faces
+

@@ -8,6 +8,7 @@
 #include "maze.h"
 #include "sphere.h"
 #include "Player.h"
+#include "Player_check.h"
 #include "network.h"
 #include <mmsystem.h>
 
@@ -86,6 +87,10 @@ vector <glm::vec3> Player_vertex;
 vector <glm::vec3> Player_normal;
 vector <glm::vec2> Player_vt;
 
+vector <glm::vec3> Player_check_vertex;
+vector <glm::vec3> Player_check_normal;
+vector <glm::vec2> Player_check_vt;
+
 //----------------전역 변수------------------
 float g_width = 1000;
 float g_height = 1000;
@@ -93,9 +98,7 @@ bool button_m = FALSE;
 bool creativemode = FALSE;
 bool light_button = TRUE;
 bool isWalking = GL_FALSE; // 산책 중 여부를 나타내는 변수 추가
-unsigned int texture[9];
-
-GLuint textures[8]; //마리오 전용 텍스처 ID 배열
+unsigned int texture[10];
 
 vec3 CMPOS;
 int item_navi = 0;
@@ -292,82 +295,6 @@ struct make_door {
 
 		glBindTexture(GL_TEXTURE_2D, texture[4]);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
-	}
-};
-struct make_xyz {
-	GLuint m_VBOVertex;
-	GLuint m_VBONormal;
-	GLuint m_VBOTexture;
-	vec3 m_color[3];
-	float rotateAngle[3] = { 0 };
-	float revolutionAngle[3] = { 0 };
-	float scale[3] = { 1.0f,1.0f,1.0f };
-	vec3 move_pos = { 0.0f,0.0f,0.0f };
-	glm::mat4 model_matrix = glm::mat4(1.0f); //단위행렬로 초기화
-	glm::mat4 parents_matrix = glm::mat4(1.0f); //단위행렬로 초기화
-	make_xyz() {
-		m_color[0].r = 1.0f;
-		m_color[0].g = 0.0f;
-		m_color[0].b = 0.0f;
-
-		m_color[1].r = 0.0f;
-		m_color[1].g = 1.0f;
-		m_color[1].b = 0.0f;
-
-		m_color[2].r = 0.0f;
-		m_color[2].g = 0.0f;
-		m_color[2].b = 1.0f;
-
-		xyz_vertex.emplace_back(300, 0, 0);
-		xyz_vertex.emplace_back(-300, 0, 0);
-		xyz_vertex.emplace_back(0, 300, 0);
-		xyz_vertex.emplace_back(0, -300, 0);
-		xyz_vertex.emplace_back(0, 0, 300);
-		xyz_vertex.emplace_back(0, 0, -300);
-	}
-
-	void SetVBO() {
-		//vbo객체 생성
-		glGenBuffers(1, &m_VBOVertex);
-	}
-
-	void draw() {
-
-		glBindBuffer(GL_ARRAY_BUFFER, m_VBOVertex);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * xyz_vertex.size(), &xyz_vertex[0], GL_STATIC_DRAW);
-
-		int positionAttrib = glGetAttribLocation(shaderProgramID, "vPos");
-		//어떤 어트리브인지, 세이더에서 vec3면 3(변수 갯수), 데이터 타입, 정규화, 하나의 덩어리 크기?, 시작 위치   
-		glVertexAttribPointer(positionAttrib, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);             //--- 위치 속성
-		glEnableVertexAttribArray(positionAttrib);
-
-		model_matrix = glm::rotate(glm::mat4(1.0f), glm::radians(revolutionAngle[0]), AXIS_X);
-		model_matrix = glm::rotate(model_matrix, glm::radians(revolutionAngle[2]), AXIS_Z);
-		model_matrix = glm::rotate(model_matrix, glm::radians(revolutionAngle[1]), AXIS_Y);
-		//model_matrix = glm::rotate(model_matrix, glm::radians(revolutionAngle[0]), AXIS_X);
-
-		model_matrix = glm::translate(model_matrix, (move_pos));
-
-		model_matrix = glm::rotate(model_matrix, glm::radians(rotateAngle[2]), AXIS_Z);
-		model_matrix = glm::rotate(model_matrix, glm::radians(rotateAngle[0]), AXIS_X);
-		model_matrix = glm::rotate(model_matrix, glm::radians(rotateAngle[1]), AXIS_Y);
-
-		model_matrix = glm::scale(model_matrix, glm::vec3(scale[0], scale[1], scale[2]));
-		model_matrix = parents_matrix * model_matrix;
-
-		unsigned int transLocation = glGetUniformLocation(shaderProgramID, "modelTransform");
-		glUniformMatrix4fv(transLocation, 1, GL_FALSE, glm::value_ptr(model_matrix));
-
-		int vColorLocation = glGetUniformLocation(shaderProgramID, "objectColor");
-
-		GLint textureNum = glGetUniformLocation(shaderProgramID, "TextureN"); //--- object Color값 전달: (1.0, 0.5, 0.3)의 색
-		glUniform1i(textureNum, 0);
-
-		/*for (int i = 0; i < 3; ++i) {
-			glLineWidth(1.0f);
-			glUniform3f(vColorLocation, m_color[i].r, m_color[i].g, m_color[i].b);
-			glDrawArrays(GL_LINE_LOOP, i * 2, 2);
-		}*/
 	}
 };
 struct make_item {
@@ -1148,6 +1075,7 @@ struct FACES
 };
 
 vector <make_Player> Player;
+vector <make_Player_check> Player_check;
 vector <MAZE> maze;
 vector <make_item> item;
 vector <make_mode> mode;
@@ -1156,7 +1084,6 @@ vector <make_ghost> ghost;
 vector <make_plane> plane;
 vector <make_door> door;
 vector <make_bottom> bottom;
-vector <make_xyz> xyz;
 vector <make_hint> hint;
 CAMERA camera;
 CAMERA minimap_camera;
@@ -1166,7 +1093,7 @@ FACES Face;
 
 void main(int argc, char** argv) {//--- 윈도우 출력하고 콜백함수 설정
 	//--------------------------------------------------------------------------------------------
-	if (!network.IsConnect()) return;
+	//if (!network.IsConnect()) return;
 	//--------------------------------------------------------------------------------------------
 	glutInit(&argc, argv); // glut 초기화
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH); // 디스플레이 모드 설정
@@ -1195,6 +1122,7 @@ void main(int argc, char** argv) {//--- 윈도우 출력하고 콜백함수 설정
 	ReadObj("planeMode.obj", mode_vertex, mode_normal, mode_vt);
 
 	ReadObj("Mario.obj", Player_vertex, Player_normal, Player_vt);
+	ReadObj("Player_check.obj", Player_check_vertex, Player_check_normal, Player_check_vt);
 
 	for (int i = 0; i < S_vertex.size(); ++i)
 	{
@@ -1206,7 +1134,6 @@ void main(int argc, char** argv) {//--- 윈도우 출력하고 콜백함수 설정
 	plane.emplace_back(0);
 	plane.emplace_back(1);
 	bottom.emplace_back();
-	xyz.emplace_back();
 	door.emplace_back(1);
 	door.emplace_back(2);
 	door.emplace_back(3);
@@ -1218,6 +1145,7 @@ void main(int argc, char** argv) {//--- 윈도우 출력하고 콜백함수 설정
 	mode.emplace_back(1);
 
 	Player.emplace_back(); //플레이어 생성
+	Player_check.emplace_back(); //플레이어1P 생성
 
 	for (int i = 0; i < 20; ++i) {
 		ghost.emplace_back(i);
@@ -1324,39 +1252,19 @@ void main(int argc, char** argv) {//--- 윈도우 출력하고 콜백함수 설정
 		//jpg니까 GL_RGBA로 로드
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texutreData9);				//---텍스처 이미지 정의
 		stbi_image_free(texutreData9);
-	}
 
-	const char* textureFiles[8] = {
-	"textures/mario1.jpg",
-	"textures/mario2.jpg",
-	"textures/mario3.jpg",
-	"textures/mario4.jpg",
-	"textures/mario5.jpg",
-	"textures/mario6.jpg",
-	"textures/mario7.jpg",
-	"textures/mario8.jpg"
-	};
+		int width1 = 250;
+		int height1 = 250;
 
-	for (int i = 0; i < 8; i++) {
-		glBindTexture(GL_TEXTURE_2D, textures[i]); // 텍스처 바인딩
-
-		// 텍스처 파라미터 설정
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glBindTexture(GL_TEXTURE_2D, texture[9]);																	    //--- 텍스처 바인딩
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);													//--- 현재 바인딩된 텍스처의 파라미터 설정하기
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-		// 텍스처 이미지 로드
-		int width, height, numberOfChannel;
-		unsigned char* textureData = stbi_load(textureFiles[i], &width, &height, &numberOfChannel, 4);
-
-		if (textureData) {
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, textureData);
-			stbi_image_free(textureData); // 이미지 데이터 해제
-		}
-		else {
-			cout << "텍스쳐 로드 실패: " << textureFiles[i] << endl;
-		}
+		unsigned char* texutreData10 = stbi_load("Player_check.jpg", &width1, &height1, &numberOfChannel, 4);						//맨 마지막 인자가 너비가 4픽셀이 되게 하는 인자
+		//jpg니까 GL_RGBA로 로드
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width1, height1, 0, GL_RGBA, GL_UNSIGNED_BYTE, texutreData10);				//---텍스처 이미지 정의
+		stbi_image_free(texutreData10);
 	}
 
 	glBindTexture(GL_TEXTURE_2D, 0); // 텍스처 바인딩 해제
@@ -1443,13 +1351,13 @@ void drawScene()
 
 		//camerapos, camera.cameraAt를 인자로 받아와 주인공의 위치와 바라보는 방향을 정해줌.
 		Player[0].Draw(camerapos, camera.cameraAt, Player_vertex, Player_normal, Player_vt, shaderProgramID);
+		Player_check[0].Draw(camerapos, camera.cameraAt, Player_check_vertex, Player_check_normal, Player_check_vt, shaderProgramID);
 
 		for (auto& doors : door)
 		{
 			doors.draw();
 		}
 		maze[0].Draw(D_vertex, D_normal, D_vt, shaderProgramID);
-		xyz[0].draw();
 
 
 		for (int i = 0; i < item.size(); ++i) {
