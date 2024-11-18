@@ -52,7 +52,7 @@ void make_Player_check::Draw(glm::vec3 pos, glm::vec3 cameraAt, vector<vec3>& D_
 
 
 	model_matrix = glm::rotate(glm::mat4(1.0f), glm::radians(revolutionAngle[0]), AXIS_X);
-	pos.y += 0.02f;//주인공 위치 살짝 내리기
+	pos.y -= 0.02f;//주인공 위치 살짝 내리기
 	model_matrix = glm::translate(model_matrix, (pos));
 
 	model_matrix = glm::rotate(model_matrix, glm::radians(rotateAngle[2]), AXIS_Z);
