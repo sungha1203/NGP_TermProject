@@ -25,7 +25,6 @@ void ReadObj(const std::string objfilename, std::vector<glm::vec3>& vertex, std:
 		if (line[0] == 'v' && line[1] == 't') {
 			cordiNum++;
 		}
-		std::cout << line << std::endl;
 	}
 	glm::vec4* vertexData = new glm::vec4[vertexNum];
 	glm::vec4* normalData = new glm::vec4[normalNum];
