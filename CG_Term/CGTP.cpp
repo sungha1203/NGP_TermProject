@@ -98,7 +98,7 @@ bool button_m = FALSE;
 bool creativemode = FALSE;
 bool light_button = TRUE;
 bool isWalking = GL_FALSE; // 산책 중 여부를 나타내는 변수 추가
-unsigned int texture[10];
+unsigned int texture[11];
 
 vec3 CMPOS;
 int item_navi = 0;
@@ -1121,7 +1121,7 @@ void main(int argc, char** argv) {//--- 윈도우 출력하고 콜백함수 설정
 	ReadObj("sphere.obj", S_vertex, S_normal, S_vt);
 	ReadObj("planeMode.obj", mode_vertex, mode_normal, mode_vt);
 
-	ReadObj("Mario.obj", Player_vertex, Player_normal, Player_vt);
+	ReadObj("Player1.obj", Player_vertex, Player_normal, Player_vt);
 	ReadObj("Player_check.obj", Player_check_vertex, Player_check_normal, Player_check_vt);
 
 	for (int i = 0; i < S_vertex.size(); ++i)
@@ -1160,7 +1160,7 @@ void main(int argc, char** argv) {//--- 윈도우 출력하고 콜백함수 설정
 	int numberOfChannel = 0;
 	{
 		stbi_set_flip_vertically_on_load(true);
-		glGenTextures(8, texture);																					    //--- 텍스처 생성
+		glGenTextures(10, texture);																					    //--- 텍스처 생성
 		//벽돌 텍스쳐
 		glBindTexture(GL_TEXTURE_2D, texture[0]);                                                       //--- 텍스처 바인딩
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);                                        //--- 현재 바인딩된 텍스처의 파라미터 설정하기
@@ -1253,18 +1253,25 @@ void main(int argc, char** argv) {//--- 윈도우 출력하고 콜백함수 설정
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texutreData9);				//---텍스처 이미지 정의
 		stbi_image_free(texutreData9);
 
-		int width1 = 250;
-		int height1 = 250;
-
 		glBindTexture(GL_TEXTURE_2D, texture[9]);																	    //--- 텍스처 바인딩
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);													//--- 현재 바인딩된 텍스처의 파라미터 설정하기
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		unsigned char* texutreData10 = stbi_load("Player_check.jpg", &width1, &height1, &numberOfChannel, 4);						//맨 마지막 인자가 너비가 4픽셀이 되게 하는 인자
+		unsigned char* texutreData10 = stbi_load("P1_check.jpg", &width, &height, &numberOfChannel, 4);						//맨 마지막 인자가 너비가 4픽셀이 되게 하는 인자
 		//jpg니까 GL_RGBA로 로드
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width1, height1, 0, GL_RGBA, GL_UNSIGNED_BYTE, texutreData10);				//---텍스처 이미지 정의
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texutreData10);				//---텍스처 이미지 정의
 		stbi_image_free(texutreData10);
+
+		glBindTexture(GL_TEXTURE_2D, texture[10]);																	    //--- 텍스처 바인딩
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);													//--- 현재 바인딩된 텍스처의 파라미터 설정하기
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		unsigned char* texutreData11 = stbi_load("Player1.jpg", &width, &height, &numberOfChannel, 4);						//맨 마지막 인자가 너비가 4픽셀이 되게 하는 인자
+		//jpg니까 GL_RGBA로 로드
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texutreData11);				//---텍스처 이미지 정의
+		stbi_image_free(texutreData11);
 	}
 
 	glBindTexture(GL_TEXTURE_2D, 0); // 텍스처 바인딩 해제

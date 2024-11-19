@@ -16,7 +16,7 @@ private:
 
 	float rotateAngle[3] = { 0 };
 	float revolutionAngle[3] = { 0 };
-	float scale[3] = { 0.02f,0.02f,0.02f };
+	float scale[3] = { 0.007f,0.007f,0.007f };
 	vec3 color;
 	vec3 move_pos = { 0.0f,0.0f,0.0f };
 
