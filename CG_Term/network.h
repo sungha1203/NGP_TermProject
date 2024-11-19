@@ -10,5 +10,5 @@ public:
 	~Network();
 
 	bool IsConnect();
-	void SendPacket();
+	void SendPacket(char* packet, int size);
 };

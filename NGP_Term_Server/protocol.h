@@ -27,7 +27,7 @@ constexpr int MaxUser = 2;		//클라 맥스 유저 수
 struct PlayerCoordPacket {
 	char size;
 	char type;
-	float X;
+	float x;
 	float y;
 	float z;
 };

@@ -1093,7 +1093,7 @@ FACES Face;
 
 void main(int argc, char** argv) {//--- 윈도우 출력하고 콜백함수 설정
 	//--------------------------------------------------------------------------------------------
-	//if (!network.IsConnect()) return;
+	if (!network.IsConnect()) return;
 	//--------------------------------------------------------------------------------------------
 	glutInit(&argc, argv); // glut 초기화
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH); // 디스플레이 모드 설정
@@ -1564,6 +1564,19 @@ GLvoid Timer(int value)
 		default:
 			break;
 		}
+		{
+			//PlayerCoordPacket* packet = new PlayerCoordPacket;
+			//packet->x = camerapos.x;
+			//packet->y = camerapos.y;
+			//packet->z = camerapos.z;
+			//network.SendPacket(reinterpret_cast<char*>(packet), sizeof(PlayerCoordPacket));
+			PlayerCoordPacket* packet = new PlayerCoordPacket;
+			packet->x = camerapos.x;
+			packet->y = camerapos.y;
+			packet->z = camerapos.z;
+			network.SendPacket(reinterpret_cast<char*>(packet), sizeof(PlayerCoordPacket));
+		}
+
 		glutTimerFunc(17, Timer, 1);
 		break;
 	case 2:         // 아이템 회전
@@ -1883,7 +1896,7 @@ void make_fragmentShaders() {
 		fIdx++;
 	}
 	const char* temp;
-	temp = &fragmentSource[fIdx-1];
+	temp = &fragmentSource[fIdx - 1];
 	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fragmentShader, 1, &temp, NULL);
 	glCompileShader(fragmentShader);
