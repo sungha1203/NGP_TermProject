@@ -13,7 +13,6 @@ MAZE::MAZE(int x, int y)
 	color.r = 0.2;
 	color.g = 0.05;
 	color.b = 0.0;
-
 	InitVbo();
 
 }
@@ -72,10 +71,10 @@ void MAZE::Draw(vector<vec3>& D_vertex, vector<vec3>& D_normal, vector<vec2>& D_
 
 	GLint textureNum = glGetUniformLocation(shaderProgramID, "TextureN"); //--- object Color값 전달: (1.0, 0.5, 0.3)의 색
 	glUniform1i(textureNum, 1);
-	glBindTexture(GL_TEXTURE_2D, texture[2]);
-	glDrawArrays(GL_TRIANGLES, 0, D_vertex.size()-12);
+	glBindTexture(GL_TEXTURE_2D, framework->texture[2]);
+	glDrawArrays(GL_TRIANGLES, 0, D_vertex.size() - 12);
 
-	glBindTexture(GL_TEXTURE_2D, texture[0]);
+	glBindTexture(GL_TEXTURE_2D, framework->texture[0]);
 	glUniform1i(textureNum, 1);
 	glUniform3f(objColorLocation, 1, 0, 0);
 	glDrawArrays(GL_TRIANGLES, D_vertex.size() - 6, 6);
@@ -124,7 +123,7 @@ void MAZE::makeBB(vector<vec3>& D_vertex)
 				temp.Min_coord.z = D_vertex[3 * i + j].z;
 			}
 
-			
+
 		}
 		bounding_box.push_back(temp);
 	}

@@ -40,8 +40,11 @@
     <Filter Include="헤더 파일\Player">
       <UniqueIdentifier>{ee960eac-14d3-4dbf-b3e2-d48c13209432}</UniqueIdentifier>
     </Filter>
-    <Filter Include="헤더 파일\Player_check">
-      <UniqueIdentifier>{143ea4bd-5550-44e4-900c-e03d9b9484cb}</UniqueIdentifier>
+    <Filter Include="헤더 파일\Framework">
+      <UniqueIdentifier>{368c296c-9251-4b0d-bbb5-3f9c3bf20dcc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\Object">
+      <UniqueIdentifier>{468ea056-d934-4ffb-b558-ba7a0968a2e5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -75,8 +78,11 @@
     <ClCompile Include="error.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Player_check.cpp">
-      <Filter>헤더 파일\Player_check</Filter>
+    <ClCompile Include="Framework.cpp">
+      <Filter>헤더 파일\Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="Object.cpp">
+      <Filter>헤더 파일\Object</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -113,8 +119,11 @@
     <ClInclude Include="error.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Player_check.h">
-      <Filter>헤더 파일\Player_check</Filter>
+    <ClInclude Include="Framework.h">
+      <Filter>헤더 파일\Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>헤더 파일\Object</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

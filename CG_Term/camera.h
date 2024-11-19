@@ -7,10 +7,10 @@ enum type
 	perspective_projection
 
 };
-extern float g_width;
-extern float g_height;
 class CAMERA {
 public:
+	float g_width;
+	float g_height;
 	Direction direction = Stop;
 	glm::mat4 CR_matrix = glm::mat4(1.0f); //단위행렬로 초기화
 	float angle = 0.0f;
@@ -23,7 +23,7 @@ public:
 	glm::vec3 camerright;
 	glm::vec3 camerleft;
 
-	void Draw(glm::vec3 Camerapos, GLuint ID,type a);
+	void Draw(glm::vec3 Camerapos, GLuint ID, type a);
 	void InGameDraw(glm::vec3 Camerapos, GLuint ID, type a);
 	void Move(float x, float y);
 	void rotate_camera();

@@ -1,8 +1,9 @@
 #pragma once
-
+#include"Framework.h"
 
 using namespace std;
 using namespace glm;
+class Framework;
 class MAZE {
 public:
 	GLuint g_vbo;
@@ -20,7 +21,10 @@ public:
 	vector <Bounding_box> bounding_box;
 
 	MAZE(int x, int y);
-	
+	Framework* framework;
+	void setFramework(Framework* fw) {
+		framework = fw;
+	}
 	void InitVbo();
 	void Draw(vector<vec3>& D_vertex, vector<vec3>& D_normal, vector<vec2>& D_vt, GLuint& shaderProgramID);
 	void makeBB(vector<vec3>& D_vertex);

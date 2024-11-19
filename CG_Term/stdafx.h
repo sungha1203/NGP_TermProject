@@ -12,14 +12,16 @@
 #include "include/glm/gtc/matrix_transform.hpp"
 #include "include/glm/ext.hpp"
 #include <string>
-
-
+#include<functional>
+#include<thread>
 #pragma comment(lib, "freeglut")
 #pragma comment(lib, "glew32")
 #pragma comment(lib, "glew32s")
 
-extern float g_width;
-extern float g_height;
+//extern float g_width;
+//extern float g_height;
+using namespace std;
+using namespace glm;
 enum timersort
 {
 	Live,

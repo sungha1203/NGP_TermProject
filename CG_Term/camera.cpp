@@ -20,7 +20,7 @@ void CAMERA::Draw(glm::vec3 Camerapos, GLuint ID, type a)
 		projection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, -26.0f, 26.0f);
 	}
 	else
-	projection = glm::perspective(glm::radians(45.0f), g_width / g_height, 0.1f, 100.0f); //--- 투영 공간 설정: fovy, aspect, near, far
+		projection = glm::perspective(glm::radians(45.0f), g_width / g_height, 0.1f, 100.0f); //--- 투영 공간 설정: fovy, aspect, near, far
 	projection = projection * CR_matrix; //--- 공간을 z축 이동
 	unsigned int projectionLocation = glGetUniformLocation(ID, "projectionTransform"); //--- 투영 변환 값 설정
 	glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, &projection[0][0]);
@@ -66,7 +66,7 @@ void CAMERA::InGameDraw(glm::vec3 Camerapos, GLuint ID, type a)
 
 void CAMERA::Move(float x, float y)
 {
-	glm::vec2 prevPos = glm::vec2(g_width / 2, g_height / 2);
+	glm::vec2 prevPos = glm::vec2(500, 500);
 
 	glm::vec2 pos = glm::vec2((float)x, (float)y);
 	auto deltaPos = pos - prevPos;

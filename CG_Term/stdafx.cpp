@@ -1,3 +1,4 @@
+#pragma once
 #include "stdafx.h"
 #define _CRT_SECURE_NO_WARNINGS
 
@@ -98,7 +99,6 @@ void ReadObj(const std::string objfilename, std::vector<glm::vec3>& vertex, std:
 		vertex.push_back(vertexData[abs((int)(iter->y)) - 1]);
 		vertex.push_back(vertexData[abs((int)(iter->z)) - 1]);                     //버텍스 좌표
 	}
-
 	for (auto iter = vtface.begin(); iter < vtface.end(); iter++) {
 		vtVertex.push_back(cordinaterData[abs((int)(iter->x)) - 1]);
 		vtVertex.push_back(cordinaterData[abs((int)(iter->y)) - 1]);
@@ -135,6 +135,8 @@ char* filetobuf(const char* file) {
 
 std::pair<float, float> ConvertWinToGL(int x, int y)
 {
+	float g_width = 1000.0f;
+	float g_height = 1000.0f;
 	float mx = ((float)x - (g_width / 2)) / (g_width / 2); //gl좌표계로 변경
 	float my = -((float)y - (g_height / 2)) / (g_height / 2); //gl좌표계로 변경
 	return { mx, my };
