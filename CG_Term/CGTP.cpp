@@ -1093,7 +1093,7 @@ FACES Face;
 
 void main(int argc, char** argv) {//--- 윈도우 출력하고 콜백함수 설정
 	//--------------------------------------------------------------------------------------------
-	//if (!network.IsConnect()) return;
+	if (!network.IsConnect()) return;
 	//--------------------------------------------------------------------------------------------
 	glutInit(&argc, argv); // glut 초기화
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH); // 디스플레이 모드 설정
