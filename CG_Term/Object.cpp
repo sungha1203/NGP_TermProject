@@ -141,7 +141,7 @@ void GameObject::draw()
 		model_matrix = glm::rotate(glm::mat4(1.0f), glm::radians(revolutionAngle[0]), AXIS_X);
 		glm::vec3 pos = framework->camerapos;
 
-		if (m_textureNum == 11) pos.y -= 0.15f;//주인공 위치 살짝 내리기		
+		if (m_textureNum == 11) pos.y -= 0.17f;//주인공 위치 살짝 내리기		
 
 		model_matrix = glm::translate(model_matrix, (pos));
 
@@ -587,8 +587,8 @@ modeObject::~modeObject()
 playerCheck::playerCheck()
 {
 	color.r = 1.0f;
-	color.g = 1.0f;
-	color.b = 1.0f;
+	color.g = 0.5f;
+	color.b = 0.3f;
 	move_pos = { -12.0f,0.2f,-9.5f }; //플레이어 초기위치
 	scale[0] = 0.005;
 	scale[1] = 0.005;
@@ -600,5 +600,25 @@ playerCheck::playerCheck()
 }
 
 playerCheck::~playerCheck()
+{
+}
+////////////////////////////////////////////////////////////////
+//P2의 게임 오브젝트
+OtherPlayer::OtherPlayer()
+{
+	color.r = 1.0f;
+	color.g = 0.5f;
+	color.b = 0.3f;
+	move_pos = { -12.0f,0.2f,-9.5f }; //플레이어 초기위치
+
+	m_textureNum = 11;
+	ReadObj("Player2.obj", m_vertex, m_normal, m_vt);
+	scale[0] = 0.003;
+	scale[1] = 0.003;
+	scale[2] = 0.003;
+	SetVBO();
+}
+
+OtherPlayer::~OtherPlayer()
 {
 }

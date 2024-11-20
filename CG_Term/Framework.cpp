@@ -95,10 +95,10 @@ GLvoid Framework::drawScene(GLvoid)
 		instance->m_ppObject[0]->draw();
 		instance->m_ppObject[1]->draw();
 		instance->m_ppObject[53]->draw();//playercheck
-		instance->m_ppObject[54]->draw();//player
+		instance->m_ppObject[55]->draw();//player
 
 		//만약 다른 클라가 접속했다면 Player2를 그려준다.
-		if(instance->sock_check) instance->m_ppObject[55]->draw();//player2
+		if(instance->sock_check) instance->m_ppObject[54]->draw();//player2
 
 		for (int i = 3; i < 7; i++)//door
 		{
