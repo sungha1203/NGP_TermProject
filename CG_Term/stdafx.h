@@ -12,8 +12,8 @@
 #include "include/glm/gtc/matrix_transform.hpp"
 #include "include/glm/ext.hpp"
 #include <string>
-#include<functional>
-#include<thread>
+#include <functional>
+#include <thread>
 #pragma comment(lib, "freeglut")
 #pragma comment(lib, "glew32")
 #pragma comment(lib, "glew32s")

@@ -23,20 +23,20 @@ class MAZE;
 class SPHERE;
 class Framework
 {
-	
 	Framework();
 	~Framework();
 public:
 	static Framework* instance; // 전역 인스턴스 포인터
-
 	static Framework& getInstance();
+
 	void make_vertexShaders();
 	void make_fragmentShaders();
+	GLuint make_shaderProgram();
+
 	static GLvoid drawScene(GLvoid);
 	//GLvoid Reshape(int w, int h);
 	static GLvoid KeyBoardFunc(unsigned char key, int x, int y);
 	static GLvoid Motion(int x, int y);
-	GLuint make_shaderProgram();
 	static GLvoid Timer(int value);
 	static GLvoid KeyBoardUpFunc(unsigned char key, int x, int y);
 	void BuildObjects();
@@ -47,7 +47,6 @@ public:
 	GLint result;
 	GLchar errorLog[512];
 	//-------------------------------------------
-
 	Light light;
 	Light light_minimap;
 	vec2 oldmouse;
@@ -55,7 +54,7 @@ public:
 	vec3 camerapos{ -12.0f,0.2f,-9.5f };
 	vec3 playerpos{ -12.0f,0.2f,-9.5f };
 public:
-	unsigned int texture[11];
+	unsigned int texture[12];
 public:
 	vector <MAZE> maze;
 	vector <SPHERE> sphere;
@@ -90,6 +89,8 @@ public:
 
 	int howManyKey = 0;
 	int Mode = 0;  //게임 시작 및 엔딩
+
+	bool sock_check = false; //다른 클라이언트가 접속했는지 여부
 public:
 	void objectcollision();//충돌
 	bool maze_collision();

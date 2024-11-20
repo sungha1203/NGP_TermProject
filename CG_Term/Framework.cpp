@@ -43,8 +43,18 @@ void Framework::make_fragmentShaders()
 {
 	GLchar* fragmentSource;
 	fragmentSource = filetobuf("fragment_light.glsl");
+	int fIdx = 0;
+	while (fragmentSource[fIdx] != '\0') { 
+		if (fragmentSource[fIdx] == '#') { 
+			fIdx++;
+			break;
+		}
+		fIdx++;
+	}
+	const char* temp;
+	temp = &fragmentSource[fIdx - 1];
 	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
+	glShaderSource(fragmentShader, 1, &temp, NULL);
 	glCompileShader(fragmentShader);
 	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &result);
 	if (!result)
@@ -84,10 +94,11 @@ GLvoid Framework::drawScene(GLvoid)
 		instance->m_ppObject[3]->draw();
 		instance->m_ppObject[0]->draw();
 		instance->m_ppObject[1]->draw();
-
 		instance->m_ppObject[53]->draw();//playercheck
 		instance->m_ppObject[54]->draw();//player
 
+		//만약 다른 클라가 접속했다면 Player2를 그려준다.
+		if(instance->sock_check) instance->m_ppObject[55]->draw();//player2
 
 		for (int i = 3; i < 7; i++)//door
 		{
@@ -408,16 +419,12 @@ GLvoid Framework::Timer(int value)
 		default:
 			break;
 		}
-		{
-			//PlayerCoordPacket* packet = new PlayerCoordPacket;
-			//packet->x = camerapos.x;
-			//packet->y = camerapos.y;
-			//packet->z = camerapos.z;
-			//network.SendPacket(reinterpret_cast<char*>(packet), sizeof(PlayerCoordPacket));
+		{ //플레이어 좌표 send
 			PlayerCoordPacket* packet = new PlayerCoordPacket;
 			packet->x =instance->camerapos.x;
 			packet->y =instance->camerapos.y;
 			packet->z =instance->camerapos.z;
+			packet->cameraAt = instance->camera.cameraAt; //플레이어가 바라보는 At벡터 정보
 			instance->network.SendPacket(reinterpret_cast<char*>(packet), sizeof(PlayerCoordPacket));
 		}
 		glutTimerFunc(17, Timer, 1);
@@ -552,8 +559,7 @@ void Framework::BuildObjects()
 	{
 		S_vertex[i].y += 0.5f;
 	}
-
-	m_nGameObjects = 55;
+	m_nGameObjects = 56;
 	m_ppObject = new GameObject * [m_nGameObjects];
 	int nObjects = 0;
 	//0~1 : plane   
@@ -566,6 +572,7 @@ void Framework::BuildObjects()
 	//52: hint
 	//53 : playercheck
 	//54 : player
+	//55 : player2
 	m_ppObject[nObjects++] = new planeObject(0);
 	m_ppObject[nObjects++] = new planeObject(1);
 	m_ppObject[nObjects++] = new bottomObject();
@@ -587,6 +594,7 @@ void Framework::BuildObjects()
 	m_ppObject[nObjects++] = new hintObject();
 	m_ppObject[nObjects++] = new playerCheck(); 
 	m_ppObject[nObjects++] = new Player();
+	m_ppObject[nObjects++] = new OtherPlayer();
 	for (int i = 0; i < nObjects; i++)
 	{
 		m_ppObject[i]->setFramework(this);
@@ -688,6 +696,7 @@ void Framework::BuildObjects()
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texutreData9);				//---텍스처 이미지 정의
 	stbi_image_free(texutreData9);
 	
+	//P1의 check 텍스처
 	glBindTexture(GL_TEXTURE_2D, texture[9]);																	    //--- 텍스처 바인딩
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);													//--- 현재 바인딩된 텍스처의 파라미터 설정하기
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -698,6 +707,7 @@ void Framework::BuildObjects()
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texutreData10);				//---텍스처 이미지 정의
 	stbi_image_free(texutreData10);
 
+	//P1의 텍스처 (스타)
 	glBindTexture(GL_TEXTURE_2D, texture[10]);																	    //--- 텍스처 바인딩
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);													//--- 현재 바인딩된 텍스처의 파라미터 설정하기
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -707,6 +717,17 @@ void Framework::BuildObjects()
 	//jpg니까 GL_RGBA로 로드
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texutreData11);				//---텍스처 이미지 정의
 	stbi_image_free(texutreData11);
+
+	//P2의 텍스처 (버섯돌이)
+	glBindTexture(GL_TEXTURE_2D, texture[11]);																	    //--- 텍스처 바인딩
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);													//--- 현재 바인딩된 텍스처의 파라미터 설정하기
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	unsigned char* texutreData12 = stbi_load("Player2.jpg", &width, &height, &numberOfChannel, 4);						//맨 마지막 인자가 너비가 4픽셀이 되게 하는 인자
+	//jpg니까 GL_RGBA로 로드
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texutreData12);				//---텍스처 이미지 정의
+	stbi_image_free(texutreData12);
 
 	maze[0].makeBB(D_vertex);
 }

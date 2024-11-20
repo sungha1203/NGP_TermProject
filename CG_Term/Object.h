@@ -112,3 +112,11 @@ public:
 	playerCheck();
 	~playerCheck();
 };
+////////////////////////////////////////////////////////////////
+//P2의 게임 오브젝트
+class OtherPlayer : public GameObject
+{
+public:
+	OtherPlayer();
+	~OtherPlayer();
+};
