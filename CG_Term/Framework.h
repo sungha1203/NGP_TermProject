@@ -59,7 +59,7 @@ public:
 	vector <MAZE> maze;
 	vector <SPHERE> sphere;
 	GameObject** m_ppObject;
-	int			m_nGameObjects = 0;
+	int         m_nGameObjects = 0;
 public:
 	vector <glm::vec3> D_vertex;
 	vector <glm::vec3> D_normal;
@@ -69,7 +69,7 @@ public:
 	vector <glm::vec3> S_normal;
 	vector <glm::vec2> S_vt;
 
-	
+
 	CAMERA camera;
 	CAMERA minimap_camera;
 
@@ -95,6 +95,7 @@ public:
 	void objectcollision();//Ãæµ¹
 	bool maze_collision();
 	bool door_collision();
+	bool player_collision();
 public:
 	Network network;
 };
