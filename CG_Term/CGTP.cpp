@@ -5,7 +5,7 @@
 Framework& gGameFramework = Framework::getInstance(); // getInstance()를 통해 접근
 
 int main(int argc, char** argv) {//--- 윈도우 출력하고 콜백함수 설정
-	//if (!gGameFramework.network.IsConnect())return 0;
+	if (!gGameFramework.network.IsConnect())return 0;
 	glutInit(&argc, argv); // glut 초기화
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH); // 디스플레이 모드 설정
 	glutInitWindowPosition(0, 0); // 윈도우의 위치 지정

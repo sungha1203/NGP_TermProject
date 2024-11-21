@@ -12,10 +12,25 @@
 
 #pragma comment(lib, "ws2_32") // ws2_32.lib 링크
 
+#include <iostream>
+#include "include/glew.h" // 필요한 헤더파일 include
+#include "include/freeglut.h"
+#include "include/freeglut_ext.h"
+#include "include/glm/glm.hpp"
+#include "include/glm/gtc/type_ptr.hpp"
+#include "include/glm/gtc/matrix_transform.hpp"
+#include "include/glm/ext.hpp"
+#pragma comment(lib, "freeglut")
+#pragma comment(lib, "glew32")
+#pragma comment(lib, "glew32s")
+
+
 #define SERVERPORT 9000
 #define BUFSIZE    512
 
 constexpr int MaxUser = 2;		//클라 맥스 유저 수
+
+using namespace glm;
 
 // 1. 플레이어 좌표
 // 2. 아이템 위치
@@ -30,6 +45,7 @@ struct PlayerCoordPacket {
 	float x;
 	float y;
 	float z;
+	glm::vec3 cameraAt;
 };
 struct ItemCoordPacket {
 	char size;

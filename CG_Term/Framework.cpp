@@ -5,6 +5,9 @@
 #include"LoadImage.h"
 #include"Player.h"
 #include "network.h"
+
+//C:\Users\User\Desktop\NGP_project\NGP_TermProject\CG_Term\x64\Release
+
 Framework* Framework::instance = nullptr;
 Framework::Framework()
 {
@@ -603,7 +606,7 @@ void Framework::BuildObjects()
 	int height = 1024;
 	int numberOfChannel = 0;
 	stbi_set_flip_vertically_on_load(true);
-	glGenTextures(11, texture);																					    //--- 텍스처 생성
+	glGenTextures(12, texture);																					    //--- 텍스처 생성
 	//벽돌 텍스쳐
 	glBindTexture(GL_TEXTURE_2D, texture[0]);                                                       //--- 텍스처 바인딩
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);                                        //--- 현재 바인딩된 텍스처의 파라미터 설정하기

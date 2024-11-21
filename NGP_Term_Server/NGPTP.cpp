@@ -2,7 +2,7 @@
 #include "protocol.h"
 
 DWORD WINAPI ClientThread(LPVOID socket);
-//DWORD WINAPI SendPacket(LPVOID IpParam);
+//DWORD WINAPI SendPacket(char* packet, int size);
 
 int g_clientNum{};
 
@@ -113,7 +113,9 @@ DWORD WINAPI ClientThread(LPVOID arg)
 		// 수신된 데이터를 구조체로 변환
 		if (len == sizeof(PlayerCoordPacket)) {
 			PlayerCoordPacket* packet = reinterpret_cast<PlayerCoordPacket*>(buf);
-			printf("수신된 좌표: x=%.2f, y=%.2f, z=%.2f\n", packet->x, packet->y, packet->z);
+			//printf("수신된 좌표: x=%.2f, y=%.2f, z=%.2f\n", packet->x, packet->y, packet->z);
+			std::cout << "바라보는 방향: " << packet->cameraAt.x << ", " 
+				<< packet->cameraAt.y << ", " << packet->cameraAt.z << std::endl;
 		}
 		else {
 			printf("알 수 없는 패킷 또는 잘못된 데이터 길이: %d\n", len);
