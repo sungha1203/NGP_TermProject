@@ -14,6 +14,7 @@
 #include <string>
 #include <functional>
 #include <thread>
+#include<DirectXCollision.h>
 #pragma comment(lib, "freeglut")
 #pragma comment(lib, "glew32")
 #pragma comment(lib, "glew32s")
@@ -22,6 +23,7 @@
 //extern float g_height;
 using namespace std;
 using namespace glm;
+using namespace DirectX;
 enum timersort
 {
 	Live,

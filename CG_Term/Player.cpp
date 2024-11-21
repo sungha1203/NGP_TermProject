@@ -8,7 +8,8 @@ Player::Player() : GameObject()
 	color.g = 1.0f;
 	color.b = 0.0f;
 	move_pos = { -12.0f,0.2f,-9.5f }; //플레이어 초기위치
-
+	m_box.Center = XMFLOAT3(-12.0f, 0.2f, -9.5f);
+	m_box.Extents = XMFLOAT3(0.05f, 0.05f, 0.05f);;
 	m_textureNum = 10;
 	ReadObj("Player1.obj", m_vertex, m_normal, m_vt);
 	scale[0] = 0.007;
