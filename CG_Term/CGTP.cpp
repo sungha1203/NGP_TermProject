@@ -1,26 +1,26 @@
-#pragma once
+ï»¿#pragma once
 #include "stdafx.h"
 #include"Framework.h"
 
-Framework& gGameFramework = Framework::getInstance(); // getInstance()¸¦ ÅëÇØ Á¢±Ù
+Framework& gGameFramework = Framework::getInstance(); // getInstance()ë¥¼ í†µí•´ ì ‘ê·¼
 
-int main(int argc, char** argv) {//--- À©µµ¿ì Ãâ·ÂÇÏ°í Äİ¹éÇÔ¼ö ¼³Á¤
+int main(int argc, char** argv) {//--- ìœˆë„ìš° ì¶œë ¥í•˜ê³  ì½œë°±í•¨ìˆ˜ ì„¤ì •
 	if (!gGameFramework.network.IsConnect())return 0;
-	glutInit(&argc, argv); // glut ÃÊ±âÈ­
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH); // µğ½ºÇÃ·¹ÀÌ ¸ğµå ¼³Á¤
-	glutInitWindowPosition(0, 0); // À©µµ¿ìÀÇ À§Ä¡ ÁöÁ¤
-	glutInitWindowSize(gGameFramework.g_width, gGameFramework.g_height); // À©µµ¿ìÀÇ Å©±â ÁöÁ¤
-	glutCreateWindow("OPENGL"); // À©µµ¿ì »ı¼º
+	glutInit(&argc, argv); // glut ì´ˆê¸°í™”
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH); // ë””ìŠ¤í”Œë ˆì´ ëª¨ë“œ ì„¤ì •
+	glutInitWindowPosition(0, 0); // ìœˆë„ìš°ì˜ ìœ„ì¹˜ ì§€ì •
+	glutInitWindowSize(gGameFramework.g_width, gGameFramework.g_height); // ìœˆë„ìš°ì˜ í¬ê¸° ì§€ì •
+	glutCreateWindow("OPENGL"); // ìœˆë„ìš° ìƒì„±
 	glewExperimental = GL_TRUE;
-	if (glewInit() != GLEW_OK) // glew ÃÊ±âÈ­
+	if (glewInit() != GLEW_OK) // glew ì´ˆê¸°í™”
 	{
 		cerr << "Unable to initialize GLEW" << endl;
 		exit(EXIT_FAILURE);
 	}
 	else
 		std::cout << "GLEW Initialized" << endl;
-	gGameFramework.make_vertexShaders(); //--- ¹öÅØ½º ¼¼ÀÌ´õ ¸¸µé±â
-	gGameFramework.make_fragmentShaders(); //--- ÇÁ·¡±×¸ÕÆ® ¼¼ÀÌ´õ ¸¸µé±â
+	gGameFramework.make_vertexShaders(); //--- ë²„í…ìŠ¤ ì„¸ì´ë” ë§Œë“¤ê¸°
+	gGameFramework.make_fragmentShaders(); //--- í”„ë˜ê·¸ë¨¼íŠ¸ ì„¸ì´ë” ë§Œë“¤ê¸°
 	gGameFramework.shaderProgramID = gGameFramework.make_shaderProgram();
 	gGameFramework.BuildObjects();
 
@@ -36,7 +36,7 @@ int main(int argc, char** argv) {//--- À©µµ¿ì Ãâ·ÂÇÏ°í Äİ¹éÇÔ¼ö ¼³Á¤
 	glutTimerFunc(17, gGameFramework.Timer, CamMove);
 	glutKeyboardUpFunc(gGameFramework.KeyBoardUpFunc);
 	glutTimerFunc(20, gGameFramework.Timer, Live);
-	glutDisplayFunc(gGameFramework.drawScene); //--- Ãâ·Â Äİ¹é ÇÔ¼ö
+	glutDisplayFunc(gGameFramework.drawScene); //--- ì¶œë ¥ ì½œë°± í•¨ìˆ˜
 	//glutReshapeFunc(Reshape);
-	glutMainLoop(); // ÀÌº¥Æ® Ã³¸® ½ÃÀÛ
+	glutMainLoop(); // ì´ë²¤íŠ¸ ì²˜ë¦¬ ì‹œì‘
 }

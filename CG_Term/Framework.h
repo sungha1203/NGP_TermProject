@@ -1,5 +1,5 @@
-#pragma once
-#define _CRT_SECURE_NO_WARNINGS //--- ÇÁ·Î±×·¥ ¸Ç ¾Õ¿¡ ¼±¾ğÇÒ °Í
+ï»¿#pragma once
+#define _CRT_SECURE_NO_WARNINGS //--- í”„ë¡œê·¸ë¨ ë§¨ ì•ì— ì„ ì–¸í•  ê²ƒ
 //#define STB_IMAGE_IMPLEMENTATION
 #include "stdafx.h"
 #include "camera.h"
@@ -26,7 +26,7 @@ class Framework
 	Framework();
 	~Framework();
 public:
-	static Framework* instance; // Àü¿ª ÀÎ½ºÅÏ½º Æ÷ÀÎÅÍ
+	static Framework* instance; // ì „ì—­ ì¸ìŠ¤í„´ìŠ¤ í¬ì¸í„°
 	static Framework& getInstance();
 
 	void make_vertexShaders();
@@ -40,9 +40,9 @@ public:
 	static GLvoid Timer(int value);
 	static GLvoid KeyBoardUpFunc(unsigned char key, int x, int y);
 	void BuildObjects();
-	//-----------ÇÊ¿äÇÑ º¯¼ö ¼±¾ğ----------------
-	GLuint shaderProgramID; //--- ¼¼ÀÌ´õ ÇÁ·Î±×·¥ ÀÌ¸§
-	GLuint vertexShader;    //--- ¹öÅØ½º ¼¼ÀÌ´õ °´Ã¼
+	//-----------í•„ìš”í•œ ë³€ìˆ˜ ì„ ì–¸----------------
+	GLuint shaderProgramID; //--- ì„¸ì´ë” í”„ë¡œê·¸ë¨ ì´ë¦„
+	GLuint vertexShader;    //--- ë²„í…ìŠ¤ ì„¸ì´ë” ê°ì²´
 	GLuint fragmentShader;
 	GLint result;
 	GLchar errorLog[512];
@@ -79,20 +79,20 @@ public:
 	bool button_m = FALSE;
 	bool creativemode = FALSE;
 	bool light_button = TRUE;
-	bool isWalking = GL_FALSE; // »êÃ¥ Áß ¿©ºÎ¸¦ ³ªÅ¸³»´Â º¯¼ö Ãß°¡
+	bool isWalking = GL_FALSE; // ì‚°ì±… ì¤‘ ì—¬ë¶€ë¥¼ ë‚˜íƒ€ë‚´ëŠ” ë³€ìˆ˜ ì¶”ê°€
 	vec3 CMPOS;
 	//int item_navi = 0;
 	//int item_where = 0;
 	//int item_Key_where = 0;
 	int hintIndex = -1;
-	bool Å©¸®¿¡ÀÌÆ¼ºê¸ğµå = false;
+	bool create_mode = false;
 
 	int howManyKey = 0;
-	int Mode = 0;  //°ÔÀÓ ½ÃÀÛ ¹× ¿£µù
+	int Mode = 0;  //ê²Œì„ ì‹œì‘ ë° ì—”ë”©
 
-	bool sock_check = false; //´Ù¸¥ Å¬¶óÀÌ¾ğÆ®°¡ Á¢¼ÓÇß´ÂÁö ¿©ºÎ
+	bool sock_check = false; //ë‹¤ë¥¸ í´ë¼ì´ì–¸íŠ¸ê°€ ì ‘ì†í–ˆëŠ”ì§€ ì—¬ë¶€
 public:
-	void objectcollision();//Ãæµ¹
+	void objectcollision();//ì¶©ëŒ
 	bool maze_collision();
 	bool door_collision();
 	bool player_collision();

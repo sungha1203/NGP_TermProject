@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include"stdafx.h"
 #include "Framework.h"
 #define STB_IMAGE_IMPLEMENTATION
@@ -293,12 +293,12 @@ GLvoid Framework::KeyBoardFunc(unsigned char key, int x, int y)
         instance->Mode = 1;
         break;
     case '+':
-        instance->크리에이티브모드 = true;
+        instance->create_mode = true;
         instance->hintIndex = 51;
 
         break;
     case '-':
-        instance->크리에이티브모드 = false;
+        instance->create_mode = false;
         instance->hintIndex = -1;
 
         break;
@@ -752,7 +752,7 @@ void Framework::BuildObjects()
 void Framework::objectcollision()
 {
     for (int i = 0; i < 20; ++i) {
-        if (pow((m_ppObject[i + 32]->move_pos.x - camerapos.x), 2) + pow((m_ppObject[i + 32]->move_pos.z - camerapos.z), 2) + pow((m_ppObject[i + 32]->move_pos.y - camerapos.y), 2) < 0.04 && m_ppObject[i + 32]->exist == true && 크리에이티브모드 == false) {   //아이템먹기
+        if (pow((m_ppObject[i + 32]->move_pos.x - camerapos.x), 2) + pow((m_ppObject[i + 32]->move_pos.z - camerapos.z), 2) + pow((m_ppObject[i + 32]->move_pos.y - camerapos.y), 2) < 0.04 && m_ppObject[i + 32]->exist == true && create_mode == false) {   //아이템먹기
             m_ppObject[i + 32]->exist = false;
             PlaySound(TEXT("itemsound.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_NODEFAULT);
             if (m_ppObject[i + 32]->m_ability == 3)//도르마무
@@ -766,7 +766,7 @@ void Framework::objectcollision()
                 hintIndex = i + 32;
             }
         }
-        else if (크리에이티브모드 == true) {
+        else if (create_mode == true) {
             m_ppObject[51]->ability();
         }
     }
