@@ -1,32 +1,57 @@
 #pragma once
-#define _CRT_SECURE_NO_WARNINGS // ±¸Çü C ÇÔ¼ö »ç¿ë ½Ã °æ°í ²ô±â
-#define _WINSOCK_DEPRECATED_NO_WARNINGS // ±¸Çü ¼ÒÄÏ API »ç¿ë ½Ã °æ°í ²ô±â
+#define _CRT_SECURE_NO_WARNINGS // ï¿½ï¿½ï¿½ï¿½ C ï¿½Ô¼ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
+#define _WINSOCK_DEPRECATED_NO_WARNINGS // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ API ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 
-#include <winsock2.h> // À©¼Ó2 ¸ÞÀÎ Çì´õ
-#include <ws2tcpip.h> // À©¼Ó2 È®Àå Çì´õ
+#include <winsock2.h> // ï¿½ï¿½ï¿½ï¿½2 ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
+#include <ws2tcpip.h> // ï¿½ï¿½ï¿½ï¿½2 È®ï¿½ï¿½ ï¿½ï¿½ï¿½
 
 #include <tchar.h> // _T(), ...
 #include <stdio.h> // printf(), ...
 #include <stdlib.h> // exit(), ...
 #include <string.h> // strncpy(), ...
 
-#pragma comment(lib, "ws2_32") // ws2_32.lib ¸µÅ©
+#pragma comment(lib, "ws2_32") // ws2_32.lib ï¿½ï¿½Å©
 
 #define SERVERPORT 9000
 #define BUFSIZE    512
 
-constexpr int MaxUser = 2;		//Å¬¶ó ¸Æ½º À¯Àú ¼ö
+constexpr int MaxUser = 2;		//Å¬ï¿½ï¿½ ï¿½Æ½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
 
-// 1. ÇÃ·¹ÀÌ¾î ÁÂÇ¥
-// 2. ¾ÆÀÌÅÛ À§Ä¡
-// 3. Å° À§Ä¡
-// 4. ¹® ¿­¸² Á¤µµ
-// 5. À¯·É ÁÂÇ¥
-// 6. °ÔÀÓ Á¾·á ÆÐÅ¶
+enum CS_PacketType				// Å¬ï¿½ï¿½ï¿½Ì¾ï¿½Æ® -> ï¿½ï¿½ï¿½ï¿½
+{
+
+};
+
+enum SC_PacketType				// ï¿½ï¿½ï¿½ï¿½ -> Å¬ï¿½ï¿½ï¿½Ì¾ï¿½Æ®
+{
+	SC_EnterId = 0,				// ï¿½ï¿½ï¿½ï¿½id
+	SC_AnotherCoord = 1			// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ç¥ ï¿½ï¿½Å¶
+};
+
+// 1. ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½Ç¥
+// 2. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡
+// 3. Å° ï¿½ï¿½Ä¡
+// 4. ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+// 5. ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ç¥
+// 6. ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å¶
+
+struct SC_EnterIdPacket {
+	char type;
+	int id;
+};
+
+struct SC_AnotherPlayerCoordPacket {
+	char type;
+	int id;
+	float x;
+	float y;
+	float z;
+};
 
 struct PlayerCoordPacket {
 	char size;
 	char type;
+	int id;
 	vec3 cameraAt;
 	float x;
 	float y;
@@ -38,8 +63,8 @@ struct ItemCoordPacket {
 	float X;
 	float y;
 	float z;
-	bool IsUsed; //»ç¿ë µÇ¾ú´ÂÁö
-	int ability; //¹«½¼ ¾ÆÀÌÅÛÀÎÁö
+	bool IsUsed; //ï¿½ï¿½ï¿½ ï¿½Ç¾ï¿½ï¿½ï¿½ï¿½ï¿½
+	int ability; //ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 };
 struct KeyCoordPacket {
 	char size;
@@ -47,13 +72,13 @@ struct KeyCoordPacket {
 	float X;
 	float y;
 	float z;
-	bool IsFind; //Ã£¾Ò´ÂÁö
+	bool IsFind; //Ã£ï¿½Ò´ï¿½ï¿½ï¿½
 };
 struct DoorOpenPacket {
 	char size;
 	char type;
-	int num; // ¹® ¹øÈ£
-	bool value; // Á¶°ÇÃ¼Å©
+	int num; // ï¿½ï¿½ ï¿½ï¿½È£
+	bool value; // ï¿½ï¿½ï¿½ï¿½Ã¼Å©
 };
 struct GhostCoordPacket {
 	char size;
@@ -61,7 +86,7 @@ struct GhostCoordPacket {
 	float X;
 	float y;
 	float z;
-	int num; // ±Í½Å ¹øÈ£
+	int num; // ï¿½Í½ï¿½ ï¿½ï¿½È£
 };
 struct GameOverPacket {
 	char size;

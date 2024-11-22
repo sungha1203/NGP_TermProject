@@ -6,11 +6,11 @@
 #include"Player.h"
 #include "network.h"
 
-//C:\Users\User\Desktop\NGP_project\NGP_TermProject\CG_Term\x64\Release
-
+int My_Id = -1;
 Framework* Framework::instance = nullptr;
 Framework::Framework()
 {
+
 }
 
 Framework::~Framework()
@@ -243,58 +243,94 @@ GLvoid Framework::drawScene(GLvoid)
 
 GLvoid Framework::KeyBoardFunc(unsigned char key, int x, int y)
 {
-    switch (key)
-    {
-    case 'p':
-        instance->creativemode = !instance->creativemode;
-        instance->light_button = !instance->light_button;
-        if (instance->creativemode)
-        {
-            instance->CMPOS = { instance->camerapos.x,instance->camerapos.y,instance->camerapos.z };
-        }
-        else
-            instance->camerapos = instance->CMPOS;
-        break;
-    case 'd':
-        if (instance->Mode == 1)
-            instance->camera.direction = Right;
-        break;
-    case 'a':
-        if (instance->Mode == 1)
-            instance->camera.direction = Left;
-        break;
-    case 'w':
-        if (instance->Mode == 1)
-        {
-            instance->camera.direction = Up;
-        }
+	switch (key)
+	{
+	case 'p':
+		instance->creativemode = !instance->creativemode;
+		instance->light_button = !instance->light_button;
+		if (instance->creativemode)
+		{
+			instance->CMPOS = { instance->camerapos.x,instance->camerapos.y,instance->camerapos.z };
+		}
+		else
+			instance->camerapos = instance->CMPOS;
+		break;
+	case 'd':
+		if (instance->Mode == 1)
+			instance->camera.direction = Right;
+		{
+			std::unique_ptr<PlayerCoordPacket> packet = std::make_unique<PlayerCoordPacket>();
+			packet->id = My_Id;
+			packet->x = instance->camerapos.x;
+			packet->y = instance->camerapos.y;
+			packet->z = instance->camerapos.z;
+			instance->network.SendPacket(reinterpret_cast<char*>(packet.get()), sizeof(PlayerCoordPacket));
+		}
+		break;
+	case 'a':
+		if (instance->Mode == 1)
+			instance->camera.direction = Left;
+		{
+			std::unique_ptr<PlayerCoordPacket> packet = std::make_unique<PlayerCoordPacket>();
+			packet->id = My_Id;
+			packet->x = instance->camerapos.x;
+			packet->y = instance->camerapos.y;
+			packet->z = instance->camerapos.z;
+			instance->network.SendPacket(reinterpret_cast<char*>(packet.get()), sizeof(PlayerCoordPacket));
+		}
+		break;
+	case 'w':
+		if (instance->Mode == 1)
+			instance->camera.direction = Up;
+		{
+			std::unique_ptr<PlayerCoordPacket> packet = std::make_unique<PlayerCoordPacket>();
+			packet->id = My_Id;
+			packet->x = instance->camerapos.x;
+			packet->y = instance->camerapos.y;
+			packet->z = instance->camerapos.z;
+			instance->network.SendPacket(reinterpret_cast<char*>(packet.get()), sizeof(PlayerCoordPacket));
+		}
+		break;
+	case 's':
+		if (instance->Mode == 1)
+			instance->camera.direction = Down;
+		{
+			std::unique_ptr<PlayerCoordPacket> packet = std::make_unique<PlayerCoordPacket>();
+			packet->id = My_Id;
+			packet->x = instance->camerapos.x;
+			packet->y = instance->camerapos.y;
+			packet->z = instance->camerapos.z;
+			instance->network.SendPacket(reinterpret_cast<char*>(packet.get()), sizeof(PlayerCoordPacket));
+		}
+		break;
+	case'm':
+		instance->button_m = !instance->button_m;
+		break;
+	case 'y':
+		instance->camerapos.y += 0.1f;
+		break;
+	case'Y':
+		instance->camerapos.y -= 0.1f;
+		break;
+	case 'q':
+		glutLeaveMainLoop();
+		break;
+	case 32:
+		if (instance->Mode == 0)
+			PlaySound(NULL, NULL, 0);
+		instance->Mode = 1;
+		break;
+	case '+':
+		instance->ũ������Ƽ���� = true;
+		instance->hintIndex = 51;
 
+		break;
+	case '-':
+		instance->ũ������Ƽ���� = false;
+		instance->hintIndex = -1;
 
-        break;
-    case 's':
-        if (instance->Mode == 1)
-            instance->camera.direction = Down;
-        break;
-    case'm':
-        instance->button_m = !instance->button_m;
-        break;
-    case 'y':
-        instance->camerapos.y += 0.1f;
-        break;
-    case'Y':
-        instance->camerapos.y -= 0.1f;
-        break;
-    case 'q':
-        glutLeaveMainLoop();
-        break;
-    case 32:
-        if (instance->Mode == 0)
-            PlaySound(NULL, NULL, 0);
-        instance->Mode = 1;
-        break;
-    case '+':
-        instance->create_mode = true;
-        instance->hintIndex = 51;
+		break;
+	}
 
         break;
     case '-':

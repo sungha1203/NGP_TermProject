@@ -1,30 +1,48 @@
 #include "error.h"
 #include "protocol.h"
+#include "PlayerInfo.h"
+#include <vector>
+#include <thread>
+#include "chrono"
+#include <mutex>
+
+std::mutex g_playerMutex;
 
 DWORD WINAPI ClientThread(LPVOID socket);
-//DWORD WINAPI SendPacket(char* packet, int size);
+DWORD WINAPI SendPacket(LPVOID IpParam);
+
+std::vector<PlayerInfo> g_player(MaxUser);
 
 int g_clientNum{};
 
 void PlayerCollision();
 void CheckPlayersArrivalAtDoor();
 
+void SetCursorPosition(int y) {
+	COORD coord = { 0, (SHORT)y };
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+}
+
 int main()
 {
 	int retval;
 
-	// À©¼Ó ÃÊ±âÈ­
+	for (int i = 0; i < MaxUser; ++i) {
+		g_player[i].SetSocket(INVALID_SOCKET);
+	}
+
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
 	WSADATA wsa;
 	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
 		return 1;
 
-	// ¼ÒÄÏ »ý¼º
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	SOCKET listen_sock = socket(AF_INET, SOCK_STREAM, 0);
 	if (listen_sock == INVALID_SOCKET) err_quit("socket()");
 
 	// bind()
 	struct sockaddr_in serveraddr;
-	memset(&serveraddr, 0, sizeof(serveraddr));
+	ZeroMemory(&serveraddr, sizeof 0);
 	serveraddr.sin_family = AF_INET;
 	serveraddr.sin_addr.s_addr = htonl(INADDR_ANY);
 	serveraddr.sin_port = htons(SERVERPORT);
@@ -35,110 +53,197 @@ int main()
 	retval = listen(listen_sock, SOMAXCONN);
 	if (retval == SOCKET_ERROR) err_quit("listen()");
 
-	// µ¥ÀÌÅÍ Åë½Å¿¡ »ç¿ëÇÒ º¯¼ö
-	SOCKET client_sock;
+	HANDLE SendThread;
+	SendThread = CreateThread(NULL, 0, SendPacket, 0, 0, 0);
+	if (SendThread == NULL) {
+		closesocket(listen_sock);
+	}
+	else {
+		CloseHandle(SendThread);
+	}
+
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	struct sockaddr_in clientaddr;
 	HANDLE hThread;
 
-	while (1)   ///////////////////////////////ÀÏ´Ü Å¬¶ó1¸í¸¸ ÇØº¼°ÅÀÓ
+	while (g_clientNum <= MaxUser)
 	{
 		// accept()
 		int addrlen = sizeof(clientaddr);
-		client_sock = accept(listen_sock, (struct sockaddr*)&clientaddr, &addrlen);
-		if (client_sock == INVALID_SOCKET) {
+		SOCKET client_socket = accept(listen_sock, (struct sockaddr*)&clientaddr, &addrlen);
+		if (client_socket == INVALID_SOCKET) {
 			err_display("accept()");
-			break;
+			continue;
 		}
 
-		++g_clientNum;	//Å¬¶óÀÌ¾ðÆ® Á¢¼Ó ¼ö						
+		if (client_socket != INVALID_SOCKET) {
+			std::lock_guard<std::mutex> lock(g_playerMutex);
+			g_player[g_clientNum].SetSocket(client_socket);     // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+			g_player[g_clientNum].SetOnline();                  // ï¿½Â¶ï¿½ï¿½ï¿½ È°ï¿½ï¿½È­
+			g_player[g_clientNum].SetId(g_clientNum + 1);       // ID ï¿½Î¿ï¿½
 
-		// Á¢¼ÓÇÑ Å¬¶óÀÌ¾ðÆ® Á¤º¸ Ãâ·Â
-		char addr[INET_ADDRSTRLEN];
-		inet_ntop(AF_INET, &clientaddr.sin_addr, addr, sizeof(addr));
-		printf("\n[TCP ¼­¹ö] Å¬¶óÀÌ¾ðÆ® Á¢¼Ó: IP ÁÖ¼Ò=%s, Æ÷Æ® ¹øÈ£=%d, 1Å¬¶óÀÌ¾ðÆ® ¹øÈ£=%d\n",
-			addr, ntohs(clientaddr.sin_port), g_clientNum);
+			// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Å¬ï¿½ï¿½ï¿½Ì¾ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
+			char addr[INET_ADDRSTRLEN];
+			inet_ntop(AF_INET, &clientaddr.sin_addr, addr, sizeof(addr));
+			printf("\n[TCP ï¿½ï¿½ï¿½ï¿½] Å¬ï¿½ï¿½ï¿½Ì¾ï¿½Æ® ï¿½ï¿½ï¿½ï¿½: IP ï¿½Ö¼ï¿½ = %s, ï¿½ï¿½Æ® ï¿½ï¿½È£ = %d, Å¬ï¿½ï¿½ï¿½Ì¾ï¿½Æ® ï¿½ï¿½È£ = %dï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½\n",
+				addr, ntohs(clientaddr.sin_port), g_player[g_clientNum].GetId());
 
-		// ½º·¹µå »ý¼º
-		hThread = CreateThread(NULL, 0, ClientThread,
-			(LPVOID)client_sock, 0, NULL);
-		if (hThread == NULL) {
-			closesocket(client_sock);
+			// Å¬ï¿½ï¿½ï¿½Ì¾ï¿½Æ®ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ë¸ï¿½ ï¿½ï¿½Å¶ ï¿½ï¿½ï¿½ï¿½
+			{
+				int len = sizeof(SC_EnterIdPacket);
+				SC_EnterIdPacket* packet = new SC_EnterIdPacket;
+				packet->type = SC_EnterId;
+				packet->id = g_clientNum + 1;
+				send(client_socket, reinterpret_cast<char*>(&len), sizeof(int), 0);
+				send(client_socket, reinterpret_cast<char*>(packet), len, 0);
+				delete packet;
+			}
+
+			// Å¬ï¿½ï¿½ï¿½Ì¾ï¿½Æ®ï¿½ï¿½ Ã³ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+			HANDLE hThread = CreateThread(NULL, 0, ClientThread, (LPVOID)client_socket, 0, NULL);
+			if (hThread == NULL) {
+				closesocket(client_socket);
+			}
+			else {
+				CloseHandle(hThread);
+			}
+
+			// Å¬ï¿½ï¿½ï¿½Ì¾ï¿½Æ® ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+			++g_clientNum;
+			printf("ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Å¬ï¿½ï¿½ï¿½Ì¾ï¿½Æ® ï¿½ï¿½ : %d / %d\n", g_clientNum, MaxUser);
 		}
 		else {
-			CloseHandle(hThread);
+			// accept ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Þ½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
+			err_display("accept() ï¿½ï¿½ï¿½ï¿½: Å¬ï¿½ï¿½ï¿½Ì¾ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¿ï¿½ï¿½ï¿½ï¿½ ï¿½Ê½ï¿½ï¿½Ï´ï¿½.");
 		}
 	}
 
-	// ¼ÒÄÏ ´Ý±â
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½Ý±ï¿½
 	closesocket(listen_sock);
 
 	WSACleanup();
 	return 0;
 }
 
-DWORD WINAPI ClientThread(LPVOID arg)
+DWORD WINAPI ClientThread(LPVOID socket)
 {
 	int retval;
-	SOCKET client_sock = (SOCKET)arg;
+	//PlayerInfo* sock = reinterpret_cast<PlayerInfo*>(socket);
+	//SOCKET client_sock = sock->GetSocket();
+	SOCKET client_sock = reinterpret_cast<SOCKET>(socket);
 
 	int len;
 	char buf[BUFSIZE + 1];
 
 	while (1) {
-		// µ¥ÀÌÅÍ ±æÀÌ ¼ö½Å
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		retval = recv(client_sock, (char*)(&len), sizeof(int), 0);
 		if (retval == SOCKET_ERROR) {
-			err_display("recv()"); // ¿À·ù Ã³¸®
+			err_display("recv()"); // ï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½
 			break;
 		}
 		else if (retval == 0) {
-			printf("Å¬¶óÀÌ¾ðÆ®°¡ ¿¬°áÀ» Á¾·áÇß½À´Ï´Ù.\n");
+			printf("Å¬ï¿½ï¿½ï¿½Ì¾ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ß½ï¿½ï¿½Ï´ï¿½.\n");
 			break;
 		}
 
-		// µ¥ÀÌÅÍ ±æÀÌ °ËÁõ
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		if (len <= 0 || len > BUFSIZE) {
-			printf("Àß¸øµÈ µ¥ÀÌÅÍ ±æÀÌ: %d\n", len);
-			continue; // ´ÙÀ½ ·çÇÁ·Î ³Ñ¾î°¨
+			printf("ï¿½ß¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½: %d\n", len);
+			continue; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ñ¾î°¨
 		}
 
-		// µ¥ÀÌÅÍ º»¹® ¼ö½Å
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		memset(buf, 0, sizeof(buf));
 		retval = recv(client_sock, buf, len, 0);
 		if (retval <= 0) {
-			printf("recv() ½ÇÆÐ ¶Ç´Â ¿¬°á Á¾·á.\n");
+			printf("recv() ï¿½ï¿½ï¿½ï¿½ ï¿½Ç´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.\n");
 			break;
 		}
 
-		// ¼ö½ÅµÈ µ¥ÀÌÅÍ¸¦ ±¸Á¶Ã¼·Î º¯È¯
+		// ï¿½ï¿½ï¿½Åµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½ï¿½ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½È¯
 		if (len == sizeof(PlayerCoordPacket)) {
 			PlayerCoordPacket* packet = reinterpret_cast<PlayerCoordPacket*>(buf);
-			//printf("¼ö½ÅµÈ ÁÂÇ¥: x=%.2f, y=%.2f, z=%.2f\n", packet->x, packet->y, packet->z);
-			std::cout << "¹Ù¶óº¸´Â ¹æÇâ: " << packet->cameraAt.x << ", " 
-				<< packet->cameraAt.y << ", " << packet->cameraAt.z << std::endl;
+			if (packet->id == 1) {   // 1ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½Ç¥ ï¿½Þ±ï¿½
+				SetCursorPosition(7);
+				printf("%dï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ï¿½ï¿½ ï¿½ï¿½Ç¥: x = %.2f, y = %.2f, z = %.2f\n", packet->id, packet->x, packet->y, packet->z);
+				g_player[packet->id - 1].SetCoord(packet->x, packet->y, packet->z);
+				{
+					// 2ï¿½ï¿½ ï¿½ï¿½Ç¥ 1ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ö±ï¿½
+					len = sizeof(SC_AnotherPlayerCoordPacket);
+					SC_AnotherPlayerCoordPacket* packet2 = new SC_AnotherPlayerCoordPacket;
+					packet2->type = SC_AnotherCoord;
+					packet2->id = g_player[1].GetId();
+					packet2->x = g_player[1].GetCoordX();
+					packet2->y = g_player[1].GetCoordY();
+					packet2->z = g_player[1].GetCoordZ();
+
+					send(client_sock, reinterpret_cast<char*>(&len), sizeof(int), 0);
+					send(client_sock, reinterpret_cast<char*>(packet2), len, 0);
+					delete packet2;
+				}
+			}
+			else					// 2ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½Ç¥ ï¿½Þ±ï¿½
+			{
+				SetCursorPosition(9);
+				printf("%dï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ï¿½ï¿½ ï¿½ï¿½Ç¥: x = %.2f, y = %.2f, z = %.2f\n", packet->id, packet->x, packet->y, packet->z);
+				g_player[packet->id - 1].SetCoord(packet->x, packet->y, packet->z);
+				{
+					// 1ï¿½ï¿½ ï¿½ï¿½Ç¥ 2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ö±ï¿½
+					len = sizeof(SC_AnotherPlayerCoordPacket);
+					SC_AnotherPlayerCoordPacket* packet3 = new SC_AnotherPlayerCoordPacket;
+					packet3->type = SC_AnotherCoord;
+					packet3->id = g_player[0].GetId();
+					packet3->x = g_player[0].GetCoordX();
+					packet3->y = g_player[0].GetCoordY();
+					packet3->z = g_player[0].GetCoordZ();
+
+					send(client_sock, reinterpret_cast<char*>(&len), sizeof(int), 0);
+					send(client_sock, reinterpret_cast<char*>(packet3), len, 0);
+					delete packet3;
+				}
+			}
 		}
 		else {
-			printf("¾Ë ¼ö ¾ø´Â ÆÐÅ¶ ¶Ç´Â Àß¸øµÈ µ¥ÀÌÅÍ ±æÀÌ: %d\n", len);
+			printf("ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å¶ ï¿½Ç´ï¿½ ï¿½ß¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½: %d\n", len);
 		}
 	}
 
-	// ¼ÒÄÏ ´Ý±â
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½Ý±ï¿½
 	closesocket(client_sock);
 	return 0;
 }
 
-//DWORD WINAPI SendPacket(LPVOID IpParam)
-//{
-//
-//}
+DWORD WINAPI SendPacket(LPVOID IpParam)
+{
+	const int PACKET_SEND_INTERVAL_MS = 100;                         // 100ms (ï¿½Ê´ï¿½ 10ï¿½ï¿½Å¶)
+	SC_AnotherPlayerCoordPacket* packet = new SC_AnotherPlayerCoordPacket; // ï¿½ï¿½Å¶ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+	int len = sizeof(SC_AnotherPlayerCoordPacket);                      // ï¿½ï¿½Å¶ Å©ï¿½ï¿½
 
-//ÇÃ·¹ÀÌ¾îµé³¢¸® Ãæµ¹ Ã³¸®
+	while (true) {
+		// ï¿½ï¿½Å¶ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+		for (int i = 0; i < MaxUser; ++i) {
+			if (g_player[i].AreUOnline() == TRUE) {
+				if (g_player[i].GetSocket() != INVALID_SOCKET) {
+					send(g_player[i].GetSocket(), reinterpret_cast<char*>(&len), sizeof(int), 0);
+					send(g_player[i].GetSocket(), reinterpret_cast<char*>(packet), len, 0);
+				}
+			}
+		}
+
+		// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (100ms ï¿½ï¿½ï¿½)
+		std::this_thread::sleep_for(std::chrono::milliseconds(PACKET_SEND_INTERVAL_MS));
+	}
+	delete packet; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½Å¶ ï¿½ï¿½ï¿½ï¿½
+}
+
+//ï¿½Ã·ï¿½ï¿½Ì¾ï¿½é³¢ï¿½ï¿½ ï¿½æµ¹ Ã³ï¿½ï¿½
 void PlayerCollision()
 {
 
 }
 
-//¹®¿­¸± ¶§ µ¿½Ã¿¡ ÇÃ·¹¾î°¡ µµÂø ÇÏ¿´´ÂÁö È®ÀÎ
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½Ã¿ï¿½ ï¿½Ã·ï¿½ï¿½î°¡ ï¿½ï¿½ï¿½ï¿½ ï¿½Ï¿ï¿½ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½
 void CheckPlayersArrivalAtDoor()
 {
 

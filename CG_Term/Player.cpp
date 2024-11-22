@@ -4,10 +4,11 @@
 
 Player::Player() : GameObject()
 {
+	m_Id = -1;
 	color.r = 1.0f;
 	color.g = 1.0f;
 	color.b = 0.0f;
-	move_pos = { -12.0f,0.2f,-9.5f }; //ÇÃ·¹ÀÌ¾î ÃÊ±âÀ§Ä¡
+	move_pos = { -12.0f,0.2f,-9.5f }; //ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½Ê±ï¿½ï¿½ï¿½Ä¡
 	m_box.Center = XMFLOAT3(-12.0f, 0.2f, -9.5f);
 	m_box.Extents = XMFLOAT3(0.05f, 0.05f, 0.05f);;
 	m_textureNum = 10;
@@ -20,4 +21,15 @@ Player::Player() : GameObject()
 
 Player::~Player()
 {
+
+}
+
+void Player::SetId(int id)
+{
+	m_Id = id;
+}
+
+int Player::GetId()
+{
+	return m_Id;
 }

@@ -21,6 +21,9 @@
 class GameObject;
 class MAZE;
 class SPHERE;
+
+extern int My_Id;  // 내가 몇번째 클라인지 알라고 변수씀
+
 class Framework
 {
 	Framework();
