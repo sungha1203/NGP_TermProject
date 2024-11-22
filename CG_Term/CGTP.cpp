@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "Framework.h"
 
-//�÷��̾� ����ü
+//플레이어 구조체
 struct Player
 {
 	int id;
@@ -60,7 +60,7 @@ int main(int argc, char** argv) {//--- 윈도우 출력하고 콜백함수 설�
 	glutTimerFunc(20, gGameFramework.Timer, Live);
 	glutDisplayFunc(gGameFramework.drawScene); //--- 출력 콜백 함수
 	//glutReshapeFunc(Reshape);
-	glutMainLoop(); // �̺�Ʈ ó�� ����
+	glutMainLoop(); // 이벤트 처리 시작
 }
 
 DWORD WINAPI RecvThread(LPVOID lpParam)
@@ -77,7 +77,7 @@ DWORD WINAPI RecvThread(LPVOID lpParam)
 			SC_EnterIdPacket* packet = reinterpret_cast<SC_EnterIdPacket*>(buf);
 			g_player[packet->id - 1].id = packet->id;
 			My_Id = packet->id;
-			printf("%d�� �÷��̾���� �����ϼ̽��ϴ�!\n", packet->id);
+			printf("%d번 플레이어님이 입장하셨습니다!\n", packet->id);
 			printf("--------------------------------------------------\n");
 			break;
 		}
@@ -89,7 +89,7 @@ DWORD WINAPI RecvThread(LPVOID lpParam)
 			g_player[packet->id].x = packet->x;
 			g_player[packet->id].y = packet->y;
 			g_player[packet->id].z = packet->z;
-			printf("%d�� �÷��̾���� ��ǥ : x = %.2f, y = %.2f, z = %.2f\n", packet->id, packet->x, packet->y, packet->z);
+			printf("%d번 플레이어님의 좌표 : x = %.2f, y = %.2f, z = %.2f\n", packet->id, packet->x, packet->y, packet->z);
 			break;
 		}
 		}

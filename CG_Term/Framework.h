@@ -22,7 +22,7 @@ class GameObject;
 class MAZE;
 class SPHERE;
 
-extern int My_Id;  // ³»°¡ ¸î¹øÂ° Å¬¶óÀÎÁö ¾Ë¶ó°í º¯¼ö¾¸
+extern int My_Id;  // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â° Å¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ë¶ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
 class Framework
 {

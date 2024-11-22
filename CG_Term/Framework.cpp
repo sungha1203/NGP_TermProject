@@ -264,6 +264,7 @@ GLvoid Framework::KeyBoardFunc(unsigned char key, int x, int y)
 			packet->x = instance->camerapos.x;
 			packet->y = instance->camerapos.y;
 			packet->z = instance->camerapos.z;
+            packet->cameraAt = instance->CMPOS;
 			instance->network.SendPacket(reinterpret_cast<char*>(packet.get()), sizeof(PlayerCoordPacket));
 		}
 		break;
@@ -276,6 +277,7 @@ GLvoid Framework::KeyBoardFunc(unsigned char key, int x, int y)
 			packet->x = instance->camerapos.x;
 			packet->y = instance->camerapos.y;
 			packet->z = instance->camerapos.z;
+            packet->cameraAt = instance->CMPOS;
 			instance->network.SendPacket(reinterpret_cast<char*>(packet.get()), sizeof(PlayerCoordPacket));
 		}
 		break;
@@ -288,6 +290,7 @@ GLvoid Framework::KeyBoardFunc(unsigned char key, int x, int y)
 			packet->x = instance->camerapos.x;
 			packet->y = instance->camerapos.y;
 			packet->z = instance->camerapos.z;
+            packet->cameraAt = instance->CMPOS;
 			instance->network.SendPacket(reinterpret_cast<char*>(packet.get()), sizeof(PlayerCoordPacket));
 		}
 		break;
@@ -300,6 +303,7 @@ GLvoid Framework::KeyBoardFunc(unsigned char key, int x, int y)
 			packet->x = instance->camerapos.x;
 			packet->y = instance->camerapos.y;
 			packet->z = instance->camerapos.z;
+            packet->cameraAt = instance->CMPOS;
 			instance->network.SendPacket(reinterpret_cast<char*>(packet.get()), sizeof(PlayerCoordPacket));
 		}
 		break;
@@ -321,24 +325,16 @@ GLvoid Framework::KeyBoardFunc(unsigned char key, int x, int y)
 		instance->Mode = 1;
 		break;
 	case '+':
-		instance->ũ������Ƽ���� = true;
+		instance->create_mode = true;
 		instance->hintIndex = 51;
 
 		break;
 	case '-':
-		instance->ũ������Ƽ���� = false;
+		instance->create_mode = false;
 		instance->hintIndex = -1;
 
 		break;
 	}
-
-        break;
-    case '-':
-        instance->create_mode = false;
-        instance->hintIndex = -1;
-
-        break;
-    }
 
     if (instance->door_collision())
         cout << "카메라x좌표:" << instance->camerapos.x << "y좌표:" << instance->camerapos.y << "z좌표:" << instance->camerapos.z << endl;

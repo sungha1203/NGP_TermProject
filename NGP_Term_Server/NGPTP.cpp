@@ -1,4 +1,4 @@
-#include "error.h"
+﻿#include "error.h"
 #include "protocol.h"
 #include "PlayerInfo.h"
 #include <vector>
@@ -31,12 +31,12 @@ int main()
 		g_player[i].SetSocket(INVALID_SOCKET);
 	}
 
-	// ���� �ʱ�ȭ
+	// 윈속 초기화
 	WSADATA wsa;
 	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
 		return 1;
 
-	// ���� ����
+	// 소켓 생성
 	SOCKET listen_sock = socket(AF_INET, SOCK_STREAM, 0);
 	if (listen_sock == INVALID_SOCKET) err_quit("socket()");
 
@@ -62,7 +62,7 @@ int main()
 		CloseHandle(SendThread);
 	}
 
-	// ������ ��ſ� ����� ����
+	// 데이터 통신에 사용할 변수
 	struct sockaddr_in clientaddr;
 	HANDLE hThread;
 
@@ -78,17 +78,17 @@ int main()
 
 		if (client_socket != INVALID_SOCKET) {
 			std::lock_guard<std::mutex> lock(g_playerMutex);
-			g_player[g_clientNum].SetSocket(client_socket);     // ���� ����
-			g_player[g_clientNum].SetOnline();                  // �¶��� Ȱ��ȭ
-			g_player[g_clientNum].SetId(g_clientNum + 1);       // ID �ο�
+			g_player[g_clientNum].SetSocket(client_socket);     // 소켓 설정
+			g_player[g_clientNum].SetOnline();                  // 온라인 활성화
+			g_player[g_clientNum].SetId(g_clientNum + 1);       // ID 부여
 
-			// ������ Ŭ���̾�Ʈ ���� ���
+			// 접속한 클라이언트 정보 출력
 			char addr[INET_ADDRSTRLEN];
 			inet_ntop(AF_INET, &clientaddr.sin_addr, addr, sizeof(addr));
-			printf("\n[TCP ����] Ŭ���̾�Ʈ ����: IP �ּ� = %s, ��Ʈ ��ȣ = %d, Ŭ���̾�Ʈ ��ȣ = %d�� �÷��̾�\n",
+			printf("\n[TCP 서버] 클라이언트 접속: IP 주소 = %s, 포트 번호 = %d, 클라이언트 번호 = %d번 플레이어\n",
 				addr, ntohs(clientaddr.sin_port), g_player[g_clientNum].GetId());
 
-			// Ŭ���̾�Ʈ���� ���� �˸� ��Ŷ ����
+			// 클라이언트에게 접속 알림 패킷 전송
 			{
 				int len = sizeof(SC_EnterIdPacket);
 				SC_EnterIdPacket* packet = new SC_EnterIdPacket;
@@ -99,7 +99,7 @@ int main()
 				delete packet;
 			}
 
-			// Ŭ���̾�Ʈ�� ó���� ������ ����
+			// 클라이언트를 처리할 스레드 생성
 			HANDLE hThread = CreateThread(NULL, 0, ClientThread, (LPVOID)client_socket, 0, NULL);
 			if (hThread == NULL) {
 				closesocket(client_socket);
@@ -108,17 +108,17 @@ int main()
 				CloseHandle(hThread);
 			}
 
-			// Ŭ���̾�Ʈ �� ����
+			// 클라이언트 수 증가
 			++g_clientNum;
-			printf("���� ���� Ŭ���̾�Ʈ �� : %d / %d\n", g_clientNum, MaxUser);
+			printf("현재 접속 클라이언트 수 : %d / %d\n", g_clientNum, MaxUser);
 		}
 		else {
-			// accept ���� �� ���� �޽��� ���
-			err_display("accept() ����: Ŭ���̾�Ʈ ������ ��ȿ���� �ʽ��ϴ�.");
+			// accept 실패 시 오류 메시지 출력
+			err_display("accept() 실패: 클라이언트 소켓이 유효하지 않습니다.");
 		}
 	}
 
-	// ���� �ݱ�
+	// 소켓 닫기
 	closesocket(listen_sock);
 
 	WSACleanup();
@@ -136,40 +136,41 @@ DWORD WINAPI ClientThread(LPVOID socket)
 	char buf[BUFSIZE + 1];
 
 	while (1) {
-		// ������ ���� ����
+		// 데이터 길이 수신
 		retval = recv(client_sock, (char*)(&len), sizeof(int), 0);
 		if (retval == SOCKET_ERROR) {
-			err_display("recv()"); // ���� ó��
+			err_display("recv()"); // 오류 처리
 			break;
 		}
 		else if (retval == 0) {
-			printf("Ŭ���̾�Ʈ�� ������ �����߽��ϴ�.\n");
+			printf("클라이언트가 연결을 종료했습니다.\n");
 			break;
 		}
 
-		// ������ ���� ����
+		// 데이터 길이 검증
 		if (len <= 0 || len > BUFSIZE) {
-			printf("�߸��� ������ ����: %d\n", len);
-			continue; // ���� ������ �Ѿ
+			printf("잘못된 데이터 길이: %d\n", len);
+			continue; // 다음 루프로 넘어감
 		}
 
-		// ������ ���� ����
+		// 데이터 본문 수신
 		memset(buf, 0, sizeof(buf));
 		retval = recv(client_sock, buf, len, 0);
 		if (retval <= 0) {
-			printf("recv() ���� �Ǵ� ���� ����.\n");
+			printf("recv() 실패 또는 연결 종료.\n");
 			break;
 		}
 
-		// ���ŵ� �����͸� ����ü�� ��ȯ
+		// 수신된 데이터를 구조체로 변환
 		if (len == sizeof(PlayerCoordPacket)) {
 			PlayerCoordPacket* packet = reinterpret_cast<PlayerCoordPacket*>(buf);
-			if (packet->id == 1) {   // 1�� �÷��̾� ��ǥ �ޱ�
+			if (packet->id == 1) {   // 1번 플레이어 좌표 받기
 				SetCursorPosition(7);
-				printf("%d�� �÷��̾��� ��ǥ: x = %.2f, y = %.2f, z = %.2f\n", packet->id, packet->x, packet->y, packet->z);
+				printf("%d번 플레이어의 좌표: x = %.2f, y = %.2f, z = %.2f\n", packet->id, packet->x, packet->y, packet->z);
 				g_player[packet->id - 1].SetCoord(packet->x, packet->y, packet->z);
+				g_player[packet->id - 1].SetCameraAt(packet->cameraAt);
 				{
-					// 2�� ��ǥ 1������ �����ֱ�
+					// 2번 좌표 1번한테 보내주기
 					len = sizeof(SC_AnotherPlayerCoordPacket);
 					SC_AnotherPlayerCoordPacket* packet2 = new SC_AnotherPlayerCoordPacket;
 					packet2->type = SC_AnotherCoord;
@@ -183,13 +184,14 @@ DWORD WINAPI ClientThread(LPVOID socket)
 					delete packet2;
 				}
 			}
-			else					// 2�� �÷��̾� ��ǥ �ޱ�
+			else if (packet->id == 2)					// 2번 플레이어 좌표 받기
 			{
 				SetCursorPosition(9);
-				printf("%d�� �÷��̾��� ��ǥ: x = %.2f, y = %.2f, z = %.2f\n", packet->id, packet->x, packet->y, packet->z);
+				printf("%d번 플레이어의 좌표: x = %.2f, y = %.2f, z = %.2f\n", packet->id, packet->x, packet->y, packet->z);
 				g_player[packet->id - 1].SetCoord(packet->x, packet->y, packet->z);
+				g_player[packet->id - 1].SetCameraAt(packet->cameraAt);
 				{
-					// 1�� ��ǥ 2������ �����ֱ�
+					// 1번 좌표 2번한테 보내주기
 					len = sizeof(SC_AnotherPlayerCoordPacket);
 					SC_AnotherPlayerCoordPacket* packet3 = new SC_AnotherPlayerCoordPacket;
 					packet3->type = SC_AnotherCoord;
@@ -205,23 +207,23 @@ DWORD WINAPI ClientThread(LPVOID socket)
 			}
 		}
 		else {
-			printf("�� �� ���� ��Ŷ �Ǵ� �߸��� ������ ����: %d\n", len);
+			printf("알 수 없는 패킷 또는 잘못된 데이터 길이: %d\n", len);
 		}
 	}
 
-	// ���� �ݱ�
+	// 소켓 닫기
 	closesocket(client_sock);
 	return 0;
 }
 
 DWORD WINAPI SendPacket(LPVOID IpParam)
 {
-	const int PACKET_SEND_INTERVAL_MS = 100;                         // 100ms (�ʴ� 10��Ŷ)
-	SC_AnotherPlayerCoordPacket* packet = new SC_AnotherPlayerCoordPacket; // ��Ŷ ������ ����
-	int len = sizeof(SC_AnotherPlayerCoordPacket);                      // ��Ŷ ũ��
+	const int PACKET_SEND_INTERVAL_MS = 100;                         // 100ms (초당 10패킷)
+	SC_AnotherPlayerCoordPacket* packet = new SC_AnotherPlayerCoordPacket; // 패킷 데이터 생성
+	int len = sizeof(SC_AnotherPlayerCoordPacket);                      // 패킷 크기
 
 	while (true) {
-		// ��Ŷ ���� ����
+		// 패킷 전송 로직
 		for (int i = 0; i < MaxUser; ++i) {
 			if (g_player[i].AreUOnline() == TRUE) {
 				if (g_player[i].GetSocket() != INVALID_SOCKET) {
@@ -231,19 +233,19 @@ DWORD WINAPI SendPacket(LPVOID IpParam)
 			}
 		}
 
-		// ���� ���� ���� (100ms ���)
+		// 전송 간격 설정 (100ms 대기)
 		std::this_thread::sleep_for(std::chrono::milliseconds(PACKET_SEND_INTERVAL_MS));
 	}
-	delete packet; // ���� ���� �� ��Ŷ ����
+	delete packet; // 루프 종료 시 패킷 해제
 }
 
-//�÷��̾�鳢�� �浹 ó��
+//플레이어들끼리 충돌 처리
 void PlayerCollision()
 {
 
 }
 
-//������ �� ���ÿ� �÷�� ���� �Ͽ����� Ȯ��
+//문열릴 때 동시에 플레어가 도착 하였는지 확인
 void CheckPlayersArrivalAtDoor()
 {
 

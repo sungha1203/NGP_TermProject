@@ -1,4 +1,4 @@
-#include "PlayerInfo.h"
+ï»¿#include "PlayerInfo.h"
 
 PlayerInfo::PlayerInfo()
 {
@@ -8,6 +8,7 @@ PlayerInfo::PlayerInfo()
 	m_x = 0.0f;
 	m_y = 0.0f;
 	m_z = 0.0f;
+	m_cameraAt = vec3(0.0f, 0.0f, 0.0f);
 }
 
 PlayerInfo::~PlayerInfo() 
@@ -39,6 +40,11 @@ void PlayerInfo::SetOnline()
 	m_online = TRUE;
 }
 
+void PlayerInfo::SetCameraAt(vec3 cameraAt)
+{
+	m_cameraAt = cameraAt;
+}
+
 //////////////////////////////////////////////////////////
 
 float PlayerInfo::GetCoordX()
@@ -58,9 +64,9 @@ float PlayerInfo::GetCoordZ()
 
 SOCKET PlayerInfo::GetSocket()
 {
-	if (!m_network) {											// m_network°¡ nullptrÀÎÁö È®ÀÎ
+	if (!m_network) {											// m_networkê°€ nullptrì¸ì§€ í™•ì¸
 		printf("Error: m_network is not initialized.\n");
-		return INVALID_SOCKET;									// À¯È¿ÇÏÁö ¾ÊÀº ¼ÒÄÏ ¹ÝÈ¯
+		return INVALID_SOCKET;									// ìœ íš¨í•˜ì§€ ì•Šì€ ì†Œì¼“ ë°˜í™˜
 	}
 	return m_network->client_socket;
 }
@@ -73,4 +79,9 @@ int PlayerInfo::GetId()
 bool PlayerInfo::AreUOnline()
 {
 	return m_online;
+}
+
+vec3 PlayerInfo::GetCameraAt()
+{
+	return vec3();
 }
