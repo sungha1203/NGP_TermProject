@@ -5,9 +5,12 @@
 #include"LoadImage.h"
 #include"Player.h"
 #include "network.h"
+
+int My_Id = -1;
 Framework* Framework::instance = nullptr;
 Framework::Framework()
 {
+
 }
 
 Framework::~Framework()
@@ -239,22 +242,50 @@ GLvoid Framework::KeyBoardFunc(unsigned char key, int x, int y)
 	case 'd':
 		if (instance->Mode == 1)
 			instance->camera.direction = Right;
+		{
+			std::unique_ptr<PlayerCoordPacket> packet = std::make_unique<PlayerCoordPacket>();
+			packet->id = My_Id;
+			packet->x = instance->camerapos.x;
+			packet->y = instance->camerapos.y;
+			packet->z = instance->camerapos.z;
+			instance->network.SendPacket(reinterpret_cast<char*>(packet.get()), sizeof(PlayerCoordPacket));
+		}
 		break;
 	case 'a':
 		if (instance->Mode == 1)
 			instance->camera.direction = Left;
+		{
+			std::unique_ptr<PlayerCoordPacket> packet = std::make_unique<PlayerCoordPacket>();
+			packet->id = My_Id;
+			packet->x = instance->camerapos.x;
+			packet->y = instance->camerapos.y;
+			packet->z = instance->camerapos.z;
+			instance->network.SendPacket(reinterpret_cast<char*>(packet.get()), sizeof(PlayerCoordPacket));
+		}
 		break;
 	case 'w':
 		if (instance->Mode == 1)
-		{
 			instance->camera.direction = Up;
+		{
+			std::unique_ptr<PlayerCoordPacket> packet = std::make_unique<PlayerCoordPacket>();
+			packet->id = My_Id;
+			packet->x = instance->camerapos.x;
+			packet->y = instance->camerapos.y;
+			packet->z = instance->camerapos.z;
+			instance->network.SendPacket(reinterpret_cast<char*>(packet.get()), sizeof(PlayerCoordPacket));
 		}
-
-
 		break;
 	case 's':
 		if (instance->Mode == 1)
 			instance->camera.direction = Down;
+		{
+			std::unique_ptr<PlayerCoordPacket> packet = std::make_unique<PlayerCoordPacket>();
+			packet->id = My_Id;
+			packet->x = instance->camerapos.x;
+			packet->y = instance->camerapos.y;
+			packet->z = instance->camerapos.z;
+			instance->network.SendPacket(reinterpret_cast<char*>(packet.get()), sizeof(PlayerCoordPacket));
+		}
 		break;
 	case'm':
 		instance->button_m = !instance->button_m;
@@ -276,12 +307,12 @@ GLvoid Framework::KeyBoardFunc(unsigned char key, int x, int y)
 	case '+':
 		instance->크리에이티브모드 = true;
 		instance->hintIndex = 51;
-		
+
 		break;
 	case '-':
 		instance->크리에이티브모드 = false;
 		instance->hintIndex = -1;
-		
+
 		break;
 	}
 
@@ -408,18 +439,6 @@ GLvoid Framework::Timer(int value)
 		default:
 			break;
 		}
-		{
-			//PlayerCoordPacket* packet = new PlayerCoordPacket;
-			//packet->x = camerapos.x;
-			//packet->y = camerapos.y;
-			//packet->z = camerapos.z;
-			//network.SendPacket(reinterpret_cast<char*>(packet), sizeof(PlayerCoordPacket));
-			PlayerCoordPacket* packet = new PlayerCoordPacket;
-			packet->x =instance->camerapos.x;
-			packet->y =instance->camerapos.y;
-			packet->z =instance->camerapos.z;
-			instance->network.SendPacket(reinterpret_cast<char*>(packet), sizeof(PlayerCoordPacket));
-		}
 		glutTimerFunc(17, Timer, 1);
 		break;
 	case 2:         // 아이템 회전
@@ -536,7 +555,7 @@ GLvoid Framework::Timer(int value)
 GLvoid Framework::KeyBoardUpFunc(unsigned char key, int x, int y)
 {
 	instance->camera.direction = Stop;
-	instance->m_ppObject[54]->direction = Stop; 
+	instance->m_ppObject[54]->direction = Stop;
 }
 
 void Framework::BuildObjects()
@@ -585,7 +604,7 @@ void Framework::BuildObjects()
 		m_ppObject[nObjects++] = new itemObject(i);
 	}
 	m_ppObject[nObjects++] = new hintObject();
-	m_ppObject[nObjects++] = new playerCheck(); 
+	m_ppObject[nObjects++] = new playerCheck();
 	m_ppObject[nObjects++] = new Player();
 	for (int i = 0; i < nObjects; i++)
 	{
@@ -687,7 +706,7 @@ void Framework::BuildObjects()
 	//jpg니까 GL_RGBA로 로드
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texutreData9);				//---텍스처 이미지 정의
 	stbi_image_free(texutreData9);
-	
+
 	glBindTexture(GL_TEXTURE_2D, texture[9]);																	    //--- 텍스처 바인딩
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);													//--- 현재 바인딩된 텍스처의 파라미터 설정하기
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);

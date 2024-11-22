@@ -1,11 +1,24 @@
 #pragma once
 #include "stdafx.h"
-#include"Framework.h"
+#include "Framework.h"
+
+//플레이어 구조체
+struct Player
+{
+	int id;
+	float x;
+	float y;
+	float z;
+};
+
+Player g_player[2];
+std::mutex player_mutex;
 
 Framework& gGameFramework = Framework::getInstance(); // getInstance()를 통해 접근
+DWORD WINAPI RecvThread(LPVOID lpParam);
 
 int main(int argc, char** argv) {//--- 윈도우 출력하고 콜백함수 설정
-	if (!gGameFramework.network.IsConnect())return 0;
+	if (!gGameFramework.network.IsConnect()) return 0;
 	glutInit(&argc, argv); // glut 초기화
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH); // 디스플레이 모드 설정
 	glutInitWindowPosition(0, 0); // 윈도우의 위치 지정
@@ -19,6 +32,15 @@ int main(int argc, char** argv) {//--- 윈도우 출력하고 콜백함수 설정
 	}
 	else
 		std::cout << "GLEW Initialized" << endl;
+
+	HANDLE hThread = CreateThread(NULL, 0, RecvThread, 0, 0, 0);
+	if (hThread == NULL) {
+		closesocket(gGameFramework.network.getsock());
+	}
+	else {
+		CloseHandle(hThread);
+	}
+
 	gGameFramework.make_vertexShaders(); //--- 버텍스 세이더 만들기
 	gGameFramework.make_fragmentShaders(); //--- 프래그먼트 세이더 만들기
 	gGameFramework.shaderProgramID = gGameFramework.make_shaderProgram();
@@ -39,4 +61,37 @@ int main(int argc, char** argv) {//--- 윈도우 출력하고 콜백함수 설정
 	glutDisplayFunc(gGameFramework.drawScene); //--- 출력 콜백 함수
 	//glutReshapeFunc(Reshape);
 	glutMainLoop(); // 이벤트 처리 시작
+}
+
+DWORD WINAPI RecvThread(LPVOID lpParam)
+{
+	while (1) {
+		int len = 0;
+		char buf[BUFSIZE];
+		recv(gGameFramework.network.getsock(), (char*)&len, sizeof(int), MSG_WAITALL);
+		recv(gGameFramework.network.getsock(), buf, len, MSG_WAITALL);
+
+		switch (buf[0]) {
+		case SC_EnterId:
+		{
+			SC_EnterIdPacket* packet = reinterpret_cast<SC_EnterIdPacket*>(buf);
+			g_player[packet->id - 1].id = packet->id;
+			My_Id = packet->id;
+			printf("%d번 플레이어님이 입장하셨습니다!\n", packet->id);
+			printf("--------------------------------------------------\n");
+			break;
+		}
+
+		case SC_AnotherCoord:
+		{
+			//std::lock_guard<std::mutex> lock(player_mutex);
+			SC_AnotherPlayerCoordPacket* packet = reinterpret_cast<SC_AnotherPlayerCoordPacket*>(buf);
+			g_player[packet->id].x = packet->x;
+			g_player[packet->id].y = packet->y;
+			g_player[packet->id].z = packet->z;
+			printf("%d번 플레이어님의 좌표 : x = %.2f, y = %.2f, z = %.2f\n", packet->id, packet->x, packet->y, packet->z);
+			break;
+		}
+		}
+	}
 }

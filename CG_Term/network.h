@@ -9,6 +9,7 @@ public:
 	Network();
 	~Network();
 
-	bool IsConnect();
-	void SendPacket(char* packet, int size);
+	SOCKET getsock();                        
+	bool IsConnect();                        
+	void SendPacket(char* packet, int size); 
 };

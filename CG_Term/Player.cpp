@@ -4,6 +4,7 @@
 
 Player::Player() : GameObject()
 {
+	m_Id = -1;
 	color.r = 1.0f;
 	color.g = 1.0f;
 	color.b = 0.0f;
@@ -19,4 +20,15 @@ Player::Player() : GameObject()
 
 Player::~Player()
 {
+
+}
+
+void Player::SetId(int id)
+{
+	m_Id = id;
+}
+
+int Player::GetId()
+{
+	return m_Id;
 }

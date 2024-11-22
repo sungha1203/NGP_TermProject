@@ -1,17 +1,35 @@
 #include "error.h"
 #include "protocol.h"
+#include "PlayerInfo.h"
+#include <vector>
+#include <thread>
+#include "chrono"
+#include <mutex>
+
+std::mutex g_playerMutex;
 
 DWORD WINAPI ClientThread(LPVOID socket);
-//DWORD WINAPI SendPacket(LPVOID IpParam);
+DWORD WINAPI SendPacket(LPVOID IpParam);
+
+std::vector<PlayerInfo> g_player(MaxUser);
 
 int g_clientNum{};
 
 void PlayerCollision();
 void CheckPlayersArrivalAtDoor();
 
+void SetCursorPosition(int y) {
+	COORD coord = { 0, (SHORT)y };
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+}
+
 int main()
 {
 	int retval;
+
+	for (int i = 0; i < MaxUser; ++i) {
+		g_player[i].SetSocket(INVALID_SOCKET);
+	}
 
 	// 윈속 초기화
 	WSADATA wsa;
@@ -24,7 +42,7 @@ int main()
 
 	// bind()
 	struct sockaddr_in serveraddr;
-	memset(&serveraddr, 0, sizeof(serveraddr));
+	ZeroMemory(&serveraddr, sizeof 0);
 	serveraddr.sin_family = AF_INET;
 	serveraddr.sin_addr.s_addr = htonl(INADDR_ANY);
 	serveraddr.sin_port = htons(SERVERPORT);
@@ -35,37 +53,68 @@ int main()
 	retval = listen(listen_sock, SOMAXCONN);
 	if (retval == SOCKET_ERROR) err_quit("listen()");
 
+	HANDLE SendThread;
+	SendThread = CreateThread(NULL, 0, SendPacket, 0, 0, 0);
+	if (SendThread == NULL) {
+		closesocket(listen_sock);
+	}
+	else {
+		CloseHandle(SendThread);
+	}
+
 	// 데이터 통신에 사용할 변수
-	SOCKET client_sock;
 	struct sockaddr_in clientaddr;
 	HANDLE hThread;
 
-	while (1)   ///////////////////////////////일단 클라1명만 해볼거임
+	while (g_clientNum <= MaxUser)
 	{
 		// accept()
 		int addrlen = sizeof(clientaddr);
-		client_sock = accept(listen_sock, (struct sockaddr*)&clientaddr, &addrlen);
-		if (client_sock == INVALID_SOCKET) {
+		SOCKET client_socket = accept(listen_sock, (struct sockaddr*)&clientaddr, &addrlen);
+		if (client_socket == INVALID_SOCKET) {
 			err_display("accept()");
-			break;
+			continue;
 		}
 
-		++g_clientNum;	//클라이언트 접속 수						
+		if (client_socket != INVALID_SOCKET) {
+			std::lock_guard<std::mutex> lock(g_playerMutex);
+			g_player[g_clientNum].SetSocket(client_socket);     // 소켓 설정
+			g_player[g_clientNum].SetOnline();                  // 온라인 활성화
+			g_player[g_clientNum].SetId(g_clientNum + 1);       // ID 부여
 
-		// 접속한 클라이언트 정보 출력
-		char addr[INET_ADDRSTRLEN];
-		inet_ntop(AF_INET, &clientaddr.sin_addr, addr, sizeof(addr));
-		printf("\n[TCP 서버] 클라이언트 접속: IP 주소=%s, 포트 번호=%d, 1클라이언트 번호=%d\n",
-			addr, ntohs(clientaddr.sin_port), g_clientNum);
+			// 접속한 클라이언트 정보 출력
+			char addr[INET_ADDRSTRLEN];
+			inet_ntop(AF_INET, &clientaddr.sin_addr, addr, sizeof(addr));
+			printf("\n[TCP 서버] 클라이언트 접속: IP 주소 = %s, 포트 번호 = %d, 클라이언트 번호 = %d번 플레이어\n",
+				addr, ntohs(clientaddr.sin_port), g_player[g_clientNum].GetId());
 
-		// 스레드 생성
-		hThread = CreateThread(NULL, 0, ClientThread,
-			(LPVOID)client_sock, 0, NULL);
-		if (hThread == NULL) {
-			closesocket(client_sock);
+			// 클라이언트에게 접속 알림 패킷 전송
+			{
+				int len = sizeof(SC_EnterIdPacket);
+				SC_EnterIdPacket* packet = new SC_EnterIdPacket;
+				packet->type = SC_EnterId;
+				packet->id = g_clientNum + 1;
+				send(client_socket, reinterpret_cast<char*>(&len), sizeof(int), 0);
+				send(client_socket, reinterpret_cast<char*>(packet), len, 0);
+				delete packet;
+			}
+
+			// 클라이언트를 처리할 스레드 생성
+			HANDLE hThread = CreateThread(NULL, 0, ClientThread, (LPVOID)client_socket, 0, NULL);
+			if (hThread == NULL) {
+				closesocket(client_socket);
+			}
+			else {
+				CloseHandle(hThread);
+			}
+
+			// 클라이언트 수 증가
+			++g_clientNum;
+			printf("현재 접속 클라이언트 수 : %d / %d\n", g_clientNum, MaxUser);
 		}
 		else {
-			CloseHandle(hThread);
+			// accept 실패 시 오류 메시지 출력
+			err_display("accept() 실패: 클라이언트 소켓이 유효하지 않습니다.");
 		}
 	}
 
@@ -76,10 +125,12 @@ int main()
 	return 0;
 }
 
-DWORD WINAPI ClientThread(LPVOID arg)
+DWORD WINAPI ClientThread(LPVOID socket)
 {
 	int retval;
-	SOCKET client_sock = (SOCKET)arg;
+	//PlayerInfo* sock = reinterpret_cast<PlayerInfo*>(socket);
+	//SOCKET client_sock = sock->GetSocket();
+	SOCKET client_sock = reinterpret_cast<SOCKET>(socket);
 
 	int len;
 	char buf[BUFSIZE + 1];
@@ -113,7 +164,45 @@ DWORD WINAPI ClientThread(LPVOID arg)
 		// 수신된 데이터를 구조체로 변환
 		if (len == sizeof(PlayerCoordPacket)) {
 			PlayerCoordPacket* packet = reinterpret_cast<PlayerCoordPacket*>(buf);
-			printf("수신된 좌표: x=%.2f, y=%.2f, z=%.2f\n", packet->x, packet->y, packet->z);
+			if (packet->id == 1) {   // 1번 플레이어 좌표 받기
+				SetCursorPosition(7);
+				printf("%d번 플레이어의 좌표: x = %.2f, y = %.2f, z = %.2f\n", packet->id, packet->x, packet->y, packet->z);
+				g_player[packet->id - 1].SetCoord(packet->x, packet->y, packet->z);
+				{
+					// 2번 좌표 1번한테 보내주기
+					len = sizeof(SC_AnotherPlayerCoordPacket);
+					SC_AnotherPlayerCoordPacket* packet2 = new SC_AnotherPlayerCoordPacket;
+					packet2->type = SC_AnotherCoord;
+					packet2->id = g_player[1].GetId();
+					packet2->x = g_player[1].GetCoordX();
+					packet2->y = g_player[1].GetCoordY();
+					packet2->z = g_player[1].GetCoordZ();
+
+					send(client_sock, reinterpret_cast<char*>(&len), sizeof(int), 0);
+					send(client_sock, reinterpret_cast<char*>(packet2), len, 0);
+					delete packet2;
+				}
+			}
+			else					// 2번 플레이어 좌표 받기
+			{
+				SetCursorPosition(9);
+				printf("%d번 플레이어의 좌표: x = %.2f, y = %.2f, z = %.2f\n", packet->id, packet->x, packet->y, packet->z);
+				g_player[packet->id - 1].SetCoord(packet->x, packet->y, packet->z);
+				{
+					// 1번 좌표 2번한테 보내주기
+					len = sizeof(SC_AnotherPlayerCoordPacket);
+					SC_AnotherPlayerCoordPacket* packet3 = new SC_AnotherPlayerCoordPacket;
+					packet3->type = SC_AnotherCoord;
+					packet3->id = g_player[0].GetId();
+					packet3->x = g_player[0].GetCoordX();
+					packet3->y = g_player[0].GetCoordY();
+					packet3->z = g_player[0].GetCoordZ();
+
+					send(client_sock, reinterpret_cast<char*>(&len), sizeof(int), 0);
+					send(client_sock, reinterpret_cast<char*>(packet3), len, 0);
+					delete packet3;
+				}
+			}
 		}
 		else {
 			printf("알 수 없는 패킷 또는 잘못된 데이터 길이: %d\n", len);
@@ -125,10 +214,28 @@ DWORD WINAPI ClientThread(LPVOID arg)
 	return 0;
 }
 
-//DWORD WINAPI SendPacket(LPVOID IpParam)
-//{
-//
-//}
+DWORD WINAPI SendPacket(LPVOID IpParam)
+{
+	const int PACKET_SEND_INTERVAL_MS = 100;                         // 100ms (초당 10패킷)
+	SC_AnotherPlayerCoordPacket* packet = new SC_AnotherPlayerCoordPacket; // 패킷 데이터 생성
+	int len = sizeof(SC_AnotherPlayerCoordPacket);                      // 패킷 크기
+
+	while (true) {
+		// 패킷 전송 로직
+		for (int i = 0; i < MaxUser; ++i) {
+			if (g_player[i].AreUOnline() == TRUE) {
+				if (g_player[i].GetSocket() != INVALID_SOCKET) {
+					send(g_player[i].GetSocket(), reinterpret_cast<char*>(&len), sizeof(int), 0);
+					send(g_player[i].GetSocket(), reinterpret_cast<char*>(packet), len, 0);
+				}
+			}
+		}
+
+		// 전송 간격 설정 (100ms 대기)
+		std::this_thread::sleep_for(std::chrono::milliseconds(PACKET_SEND_INTERVAL_MS));
+	}
+	delete packet; // 루프 종료 시 패킷 해제
+}
 
 //플레이어들끼리 충돌 처리
 void PlayerCollision()

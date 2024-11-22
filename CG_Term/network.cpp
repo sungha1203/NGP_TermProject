@@ -12,7 +12,12 @@ Network::Network()
 Network::~Network()
 {
 	closesocket(sock);
+    WSACleanup();
+}
 
+SOCKET Network::getsock()
+{
+    return sock;
 }
 
 bool Network::IsConnect()
@@ -61,6 +66,5 @@ void Network::SendPacket(char* packet, int size)
     if (result == SOCKET_ERROR) {
         printf("send() 데이터 전송 실패2: %d\n", WSAGetLastError());
     }
-
-    printf("패킷 전송 성공: %d 바이트\n", size);
+    //printf("패킷 전송 성공: %d 바이트\n", size);      //잘전해지나 확인해보려고 쓴거임
 }

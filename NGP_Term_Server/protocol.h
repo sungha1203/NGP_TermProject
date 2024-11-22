@@ -17,6 +17,17 @@
 
 constexpr int MaxUser = 2;		//클라 맥스 유저 수
 
+enum CS_PacketType				// 클라이언트 -> 서버
+{
+
+};
+
+enum SC_PacketType				// 서버 -> 클라이언트
+{
+	SC_EnterId = 0,				// 입장id
+	SC_AnotherCoord = 1			// 상대방 좌표 패킷
+};
+
 // 1. 플레이어 좌표
 // 2. 아이템 위치
 // 3. 키 위치
@@ -24,9 +35,23 @@ constexpr int MaxUser = 2;		//클라 맥스 유저 수
 // 5. 유령 좌표
 // 6. 게임 종료 패킷
 
+struct SC_EnterIdPacket {
+	char type;
+	int id;
+};
+
+struct SC_AnotherPlayerCoordPacket {
+	char type;
+	int id;
+	float x;
+	float y;
+	float z;
+};
+
 struct PlayerCoordPacket {
 	char size;
 	char type;
+	int id;
 	float x;
 	float y;
 	float z;
