@@ -14,6 +14,7 @@
 #include <string>
 #include <functional>
 #include <thread>
+#include <mutex>
 #include<DirectXCollision.h>
 #pragma comment(lib, "freeglut")
 #pragma comment(lib, "glew32")
@@ -40,7 +41,6 @@ enum Direction
 
 char* filetobuf(const char* file);
 void ReadObj(const std::string objfilename, std::vector<glm::vec3>& vertex, std::vector<glm::vec3>& normalVertex, std::vector<glm::vec2>& vtVertex);
-
 
 enum  AXIS
 {

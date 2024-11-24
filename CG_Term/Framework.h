@@ -22,8 +22,7 @@ class GameObject;
 class MAZE;
 class SPHERE;
 
-extern int My_Id;  // ���� ���° Ŭ������ �˶�� ������
-
+extern int My_Id; 
 class Framework
 {
 	Framework();
@@ -57,11 +56,19 @@ public:
 	vec3 camerapos{ -12.0f,0.2f,-9.5f };
 	vec3 playerpos{ -12.0f,0.2f,-9.5f };
 public:
-	unsigned int texture[12];
+	unsigned int texture[13];
 public:
 	vector <MAZE> maze;
 	vector <SPHERE> sphere;
 	GameObject** m_ppObject;
+
+	///////////////////////////////////////////////////////////////////////////////
+	vec3 P2_pos{}; //다른 클라 위치 정보
+	vec3 At{}; //다른 클라 방향 벡터
+	int id;
+
+
+
 	int         m_nGameObjects = 0;
 public:
 	vector <glm::vec3> D_vertex;
@@ -92,7 +99,6 @@ public:
 
 	int howManyKey = 0;
 	int Mode = 0;  //게임 시작 및 엔딩
-
 	bool sock_check = false; //다른 클라이언트가 접속했는지 여부
 public:
 	void objectcollision();//충돌

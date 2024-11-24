@@ -56,7 +56,12 @@ public:
         framework = fw;
     }
 public:
+    vec3 P2_pos; //다른 클라이언트 위치 정보
+    vec3 At; //다른 클라이언트 방향 벡터 정보
+    int id{}; //클라이언트ID
 
+
+    bool sock_check = false; //다른 클라이언트가 접속했는지 여부
     //플레이어간 충돌처리용
     BoundingBox m_box;
 };
@@ -121,6 +126,6 @@ public:
 class OtherPlayer : public GameObject
 {
 public:
-    OtherPlayer();
+    OtherPlayer(int id);
     ~OtherPlayer();
 };

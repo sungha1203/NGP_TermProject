@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "Framework.h"
 
-//플레이어 구조체
+//다른 클라이언트 플레이어 정보 구조체
 struct Player
 {
 	int id;
@@ -77,19 +77,22 @@ DWORD WINAPI RecvThread(LPVOID lpParam)
 			SC_EnterIdPacket* packet = reinterpret_cast<SC_EnterIdPacket*>(buf);
 			g_player[packet->id - 1].id = packet->id;
 			My_Id = packet->id;
+			gGameFramework.id = packet->id;
 			printf("%d번 플레이어님이 입장하셨습니다!\n", packet->id);
 			printf("--------------------------------------------------\n");
 			break;
 		}
-
 		case SC_AnotherCoord:
 		{
 			//std::lock_guard<std::mutex> lock(player_mutex);
 			SC_AnotherPlayerCoordPacket* packet = reinterpret_cast<SC_AnotherPlayerCoordPacket*>(buf);
-			g_player[packet->id].x = packet->x;
-			g_player[packet->id].y = packet->y;
-			g_player[packet->id].z = packet->z;
-			printf("%d번 플레이어님의 좌표 : x = %.2f, y = %.2f, z = %.2f\n", packet->id, packet->x, packet->y, packet->z);
+			gGameFramework.id = packet->id;
+			gGameFramework.P2_pos.x = packet->x;
+			gGameFramework.P2_pos.y = packet->y;
+			gGameFramework.P2_pos.z = packet->z;
+			gGameFramework.At = packet->cameraAt;
+			//printf("%d번 플레이어님의 좌표 : x = %.2f, y = %.2f, z = %.2f\n", packet->id, packet->x, packet->y, packet->z);
+			gGameFramework.sock_check = true;
 			break;
 		}
 		}

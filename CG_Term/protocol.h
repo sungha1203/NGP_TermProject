@@ -46,6 +46,7 @@ struct SC_AnotherPlayerCoordPacket {
 	float x;
 	float y;
 	float z;
+	vec3 cameraAt;
 };
 
 struct PlayerCoordPacket {

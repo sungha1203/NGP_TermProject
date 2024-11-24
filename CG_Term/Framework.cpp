@@ -1,9 +1,9 @@
 ﻿#pragma once
-#include"stdafx.h"
+#include "stdafx.h"
 #include "Framework.h"
 #define STB_IMAGE_IMPLEMENTATION
-#include"LoadImage.h"
-#include"Player.h"
+#include "LoadImage.h"
+#include "Player.h"
 #include "network.h"
 
 int My_Id = -1;
@@ -102,8 +102,9 @@ GLvoid Framework::drawScene(GLvoid)
         instance->m_ppObject[1]->draw();
         instance->m_ppObject[53]->draw();//playercheck
         instance->m_ppObject[54]->draw();//player
-        instance->m_ppObject[55]->draw();//player2 (버섯돌이)
-
+        instance->m_ppObject[55]->sock_check = instance->sock_check;
+        instance->m_ppObject[55]->P2_pos = instance->P2_pos;//P2 플레이어 위치 초기화
+        instance->m_ppObject[55]->At = instance->At;//P2 플레이어 위치 초기화
         //만약 다른 클라가 접속했다면 Player2를 그려준다.
         if (instance->sock_check) instance->m_ppObject[55]->draw();//player2
 
@@ -258,54 +259,18 @@ GLvoid Framework::KeyBoardFunc(unsigned char key, int x, int y)
 	case 'd':
 		if (instance->Mode == 1)
 			instance->camera.direction = Right;
-		{
-			std::unique_ptr<PlayerCoordPacket> packet = std::make_unique<PlayerCoordPacket>();
-			packet->id = My_Id;
-			packet->x = instance->camerapos.x;
-			packet->y = instance->camerapos.y;
-			packet->z = instance->camerapos.z;
-            packet->cameraAt = instance->CMPOS;
-			instance->network.SendPacket(reinterpret_cast<char*>(packet.get()), sizeof(PlayerCoordPacket));
-		}
 		break;
 	case 'a':
 		if (instance->Mode == 1)
 			instance->camera.direction = Left;
-		{
-			std::unique_ptr<PlayerCoordPacket> packet = std::make_unique<PlayerCoordPacket>();
-			packet->id = My_Id;
-			packet->x = instance->camerapos.x;
-			packet->y = instance->camerapos.y;
-			packet->z = instance->camerapos.z;
-            packet->cameraAt = instance->CMPOS;
-			instance->network.SendPacket(reinterpret_cast<char*>(packet.get()), sizeof(PlayerCoordPacket));
-		}
 		break;
 	case 'w':
 		if (instance->Mode == 1)
 			instance->camera.direction = Up;
-		{
-			std::unique_ptr<PlayerCoordPacket> packet = std::make_unique<PlayerCoordPacket>();
-			packet->id = My_Id;
-			packet->x = instance->camerapos.x;
-			packet->y = instance->camerapos.y;
-			packet->z = instance->camerapos.z;
-            packet->cameraAt = instance->CMPOS;
-			instance->network.SendPacket(reinterpret_cast<char*>(packet.get()), sizeof(PlayerCoordPacket));
-		}
 		break;
 	case 's':
 		if (instance->Mode == 1)
 			instance->camera.direction = Down;
-		{
-			std::unique_ptr<PlayerCoordPacket> packet = std::make_unique<PlayerCoordPacket>();
-			packet->id = My_Id;
-			packet->x = instance->camerapos.x;
-			packet->y = instance->camerapos.y;
-			packet->z = instance->camerapos.z;
-            packet->cameraAt = instance->CMPOS;
-			instance->network.SendPacket(reinterpret_cast<char*>(packet.get()), sizeof(PlayerCoordPacket));
-		}
 		break;
 	case'm':
 		instance->button_m = !instance->button_m;
@@ -444,7 +409,6 @@ GLvoid Framework::Timer(int value)
                 instance->camerapos.z += 5 * instance->camera.speed * instance->camera.camerright.z;
             }
             break;
-
         case Right:
             instance->camerapos.x += instance->camera.speed * instance->camera.camerright.x;
             if (instance->creativemode)
@@ -458,24 +422,22 @@ GLvoid Framework::Timer(int value)
                 instance->camerapos.x += 5 * instance->camera.speed * instance->camera.camerleft.x;
                 instance->camerapos.z += 5 * instance->camera.speed * instance->camera.camerleft.z;
             }
-
             break;
         default:
             break;
         }
-		
         //플레이어 충돌박스 센터 입력
         XMFLOAT3 center = { instance->camerapos.x,instance->camerapos.y, instance->camerapos.z };
         instance->m_ppObject[54]->m_box.Center = center;
-
         { //플레이어 좌표 send
-			PlayerCoordPacket* packet = new PlayerCoordPacket;
-			packet->x =instance->camerapos.x;
-			packet->y =instance->camerapos.y;
-			packet->z =instance->camerapos.z;
-			packet->cameraAt = instance->camera.cameraAt; //플레이어가 바라보는 At벡터 정보
-			instance->network.SendPacket(reinterpret_cast<char*>(packet), sizeof(PlayerCoordPacket));
-		}
+            PlayerCoordPacket* packet = new PlayerCoordPacket;
+            packet->id = My_Id;
+            packet->x = instance->camerapos.x;
+            packet->y = instance->camerapos.y;
+            packet->z = instance->camerapos.z;
+            packet->cameraAt = instance->camera.cameraAt; //플레이어가 바라보는 At벡터 정보
+            instance->network.SendPacket(reinterpret_cast<char*>(packet), sizeof(PlayerCoordPacket));
+        }
         glutTimerFunc(17, Timer, 1);
         break;
     case 2:         // 아이템 회전
@@ -582,10 +544,7 @@ GLvoid Framework::Timer(int value)
         default:
             break;
         }
-
-
         break;
-
     }
 }
 
@@ -642,8 +601,16 @@ void Framework::BuildObjects()
     }
     m_ppObject[nObjects++] = new hintObject();
     m_ppObject[nObjects++] = new playerCheck();
-    m_ppObject[nObjects++] = new Player();
-    m_ppObject[nObjects++] = new OtherPlayer();
+    m_ppObject[nObjects++] = new Player(id);
+    m_ppObject[nObjects++] = new OtherPlayer(id);
+
+    for (int i = 0; i < nObjects; i++)
+    {
+        m_ppObject[i]->id = -1;
+    }
+    m_ppObject[53]->id = id;
+    m_ppObject[54]->id = id;
+    m_ppObject[55]->id = 0;
     for (int i = 0; i < nObjects; i++)
     {
         m_ppObject[i]->setFramework(this);
@@ -777,6 +744,17 @@ void Framework::BuildObjects()
    
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texutreData12); 
     stbi_image_free(texutreData12);
+
+    //P2의 check 텍스처
+    glBindTexture(GL_TEXTURE_2D, texture[12]);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    unsigned char* texutreData13 = stbi_load("P2_check.jpg", &width, &height, &numberOfChannel, 4);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texutreData13);
+    stbi_image_free(texutreData13);
 
     maze[0].makeBB(D_vertex);
 }

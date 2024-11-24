@@ -6,7 +6,7 @@ class Player : public GameObject
 {
 	int m_Id;
 public:
-	Player();
+	Player(int id);
 	~Player();
 
 	void SetId(int id);

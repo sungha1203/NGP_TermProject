@@ -178,7 +178,7 @@ DWORD WINAPI ClientThread(LPVOID socket)
 					packet2->x = g_player[1].GetCoordX();
 					packet2->y = g_player[1].GetCoordY();
 					packet2->z = g_player[1].GetCoordZ();
-
+					packet2->cameraAt = g_player[1].GetCameraAt();
 					send(client_sock, reinterpret_cast<char*>(&len), sizeof(int), 0);
 					send(client_sock, reinterpret_cast<char*>(packet2), len, 0);
 					delete packet2;
@@ -199,7 +199,7 @@ DWORD WINAPI ClientThread(LPVOID socket)
 					packet3->x = g_player[0].GetCoordX();
 					packet3->y = g_player[0].GetCoordY();
 					packet3->z = g_player[0].GetCoordZ();
-
+					packet3->cameraAt = g_player[0].GetCameraAt();
 					send(client_sock, reinterpret_cast<char*>(&len), sizeof(int), 0);
 					send(client_sock, reinterpret_cast<char*>(packet3), len, 0);
 					delete packet3;
@@ -232,7 +232,6 @@ DWORD WINAPI SendPacket(LPVOID IpParam)
 				}
 			}
 		}
-
 		// 전송 간격 설정 (100ms 대기)
 		std::this_thread::sleep_for(std::chrono::milliseconds(PACKET_SEND_INTERVAL_MS));
 	}
