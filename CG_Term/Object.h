@@ -118,7 +118,7 @@ public:
 class playerCheck : public GameObject
 {
 public:
-    playerCheck();
+    playerCheck(int id);
     ~playerCheck();
 };
 ////////////////////////////////////////////////////////////////

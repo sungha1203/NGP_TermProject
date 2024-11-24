@@ -49,7 +49,7 @@ void GameObject::draw()
         glUniform3f(vColorLocation, color.r, color.g, color.b);
         glDrawArrays(GL_LINE_STRIP, 0, m_vertex.size());
     }
-    else if (m_textureNum == 9 || m_textureNum == 10 || m_textureNum == 11) //playercheck 9, 플레이어가 별인 경우, 버섯인 경우
+    else if (m_textureNum == 9 || m_textureNum == 10 || m_textureNum == 11 || m_textureNum == 12) //playercheck 9, 플레이어가 별인 경우, 버섯인 경우
     {
         glBindBuffer(GL_ARRAY_BUFFER, m_VBOVertex);
         glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * m_vertex.size(), &m_vertex[0], GL_STATIC_DRAW);
@@ -543,7 +543,7 @@ modeObject::~modeObject()
 {
 }
 
-playerCheck::playerCheck()
+playerCheck::playerCheck(int id)
 {
     color.r = 1.0f;
     color.g = 0.5f;
@@ -553,7 +553,8 @@ playerCheck::playerCheck()
     scale[1] = 0.005;
     scale[2] = 0.005;
     move_pos = { 0.0f,0.0f,0.0f };
-    m_textureNum = 9;
+    if(id == 1) m_textureNum = 9;  //P1일 경우
+    if(id == 2) m_textureNum = 12; //P2일 경우
     ReadObj("Player_check.obj", m_vertex, m_normal, m_vt);
     SetVBO();
 }

@@ -600,7 +600,7 @@ void Framework::BuildObjects()
         m_ppObject[nObjects++] = new itemObject(i);
     }
     m_ppObject[nObjects++] = new hintObject();
-    m_ppObject[nObjects++] = new playerCheck();
+    m_ppObject[nObjects++] = new playerCheck(id);
     m_ppObject[nObjects++] = new Player(id);
     m_ppObject[nObjects++] = new OtherPlayer(id);
 
