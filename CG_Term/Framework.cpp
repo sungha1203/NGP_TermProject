@@ -145,6 +145,7 @@ GLvoid Framework::drawScene(GLvoid)
         }
 
         instance->sphere[0].move_pos = { instance->camerapos.x,instance->camerapos.y + 4.0f,instance->camerapos.z };
+        instance->sphere[1].move_pos = { instance->P2_pos.x,instance->P2_pos.y + 4.0f,instance->P2_pos.z };
         glClear(GL_DEPTH_BUFFER_BIT);
         glViewport(instance->g_width * 4 / 5, instance->g_height * 4 / 5, instance->g_width / 5, instance->g_height / 5);
         //==================================================//미니맵 부분
@@ -212,6 +213,7 @@ GLvoid Framework::drawScene(GLvoid)
             instance->m_ppObject[i + 12]->scale[2] = 0.1f;
         }
         instance->sphere[0].Draw(instance->S_vertex, instance->S_normal, instance->S_vt, instance->shaderProgramID);
+        instance->sphere[1].Draw(instance->S_vertex, instance->S_normal, instance->S_vt, instance->shaderProgramID);
         instance->m_ppObject[0]->draw();
         instance->maze[0].Draw(instance->D_vertex, instance->D_normal, instance->D_vt, instance->shaderProgramID);
         for (int i = 0; i < 20; ++i) {
@@ -563,8 +565,14 @@ void Framework::BuildObjects()
     maze.emplace_back(500, 500);
     maze[0].setFramework(this);
     sphere.emplace_back(500, 500);
+    sphere.emplace_back(500, 500);
     sphere[0].scale = 0.05;
     sphere[0].setFramework(this);
+    sphere[1].scale = 0.05;
+    sphere[1].setFramework(this);
+    sphere[1].color.r=1;
+    sphere[1].color.g=1;
+    sphere[1].color.b=0;
     for (int i = 0; i < S_vertex.size(); ++i)
     {
         S_vertex[i].y += 0.5f;
