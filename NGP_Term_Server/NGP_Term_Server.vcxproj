@@ -112,7 +112,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\User\Desktop\NGP_project\NGP_TermProject\CG_Term\lib\x64</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\ihhan\NGP_TermProject\NGP_Term_Server\lib\x64</AdditionalLibraryDirectories>
       <AdditionalDependencies>freeglut.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -136,11 +136,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="error.cpp" />
+    <ClCompile Include="KeyInfo.cpp" />
     <ClCompile Include="NGPTP.cpp" />
     <ClCompile Include="PlayerInfo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="error.h" />
+    <ClInclude Include="KeyInfo.h" />
     <ClInclude Include="PlayerInfo.h" />
     <ClInclude Include="protocol.h" />
   </ItemGroup>

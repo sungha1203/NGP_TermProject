@@ -51,6 +51,7 @@ public:
     int m_modeN;   //mode¿ë
     int m_IsOpen = 0;//door¿ë
     int m_OpenN = 0;
+    int key_num;//key¿ë
     Framework* framework;
     void setFramework(Framework* fw) {
         framework = fw;

@@ -773,6 +773,7 @@ void Framework::objectcollision()
 {
     for (int i = 0; i < 20; ++i) {
         if (pow((m_ppObject[i + 32]->move_pos.x - camerapos.x), 2) + pow((m_ppObject[i + 32]->move_pos.z - camerapos.z), 2) + pow((m_ppObject[i + 32]->move_pos.y - camerapos.y), 2) < 0.04 && m_ppObject[i + 32]->exist == true && create_mode == false) {   //아이템먹기
+            
             m_ppObject[i + 32]->exist = false;
             PlaySound(TEXT("itemsound.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_NODEFAULT);
             if (m_ppObject[i + 32]->m_ability == 3)//도르마무
@@ -792,10 +793,16 @@ void Framework::objectcollision()
     }
 
     for (int i = 0; i < 3; ++i) {
-        if (pow((m_ppObject[i + 7]->move_pos.x - camerapos.x), 2) + pow((m_ppObject[i + 7]->move_pos.z - camerapos.z), 2) + pow((m_ppObject[i + 7]->move_pos.y - camerapos.y), 2) < 0.04 && m_ppObject[i + 7]->exist == true) {   //아이템먹기
-            m_ppObject[i + 7]->exist = false;
-            PlaySound(TEXT("keysound.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_NODEFAULT);
-            howManyKey++;
+        if (pow((m_ppObject[i + 7]->move_pos.x - camerapos.x), 2) + pow((m_ppObject[i + 7]->move_pos.z - camerapos.z), 2) + pow((m_ppObject[i + 7]->move_pos.y - camerapos.y), 2) < 0.04 && m_ppObject[i + 7]->exist == true) {   //키먹기
+            { //획득 키 넘버 send (키넘버는 0,1,2)
+                GotKeyPacket* packet = new GotKeyPacket;
+                packet->key_num = m_ppObject[i + 7]->key_num;    
+                packet->HowManyKey = howManyKey;
+                instance->network.SendPacket(reinterpret_cast<char*>(packet), sizeof(GotKeyPacket));
+            }
+            //m_ppObject[i + 7]->exist = false;
+            //PlaySound(TEXT("keysound.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_NODEFAULT);
+            //howManyKey++;
         }
     }
     if (!creativemode) {

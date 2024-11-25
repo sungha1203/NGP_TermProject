@@ -96,6 +96,14 @@ DWORD WINAPI RecvThread(LPVOID lpParam)
 			gGameFramework.sock_check = true;
 			break;
 		}
+		case SC_GOTKEY:
+		{
+			GotKeyPacket* packet = reinterpret_cast<GotKeyPacket*>(buf);
+			gGameFramework.howManyKey = packet->HowManyKey;
+			gGameFramework.m_ppObject[packet->key_num + 7]->exist = false;
+			PlaySound(TEXT("keysound.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_NODEFAULT); 
+			break;
+		}
 		}
 	}
 }

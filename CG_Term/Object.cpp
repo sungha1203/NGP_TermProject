@@ -384,6 +384,7 @@ keyObject::keyObject(int num) :GameObject()
     color.r = 1.0f;
     color.g = 1.0f;
     color.b = 1.0f;
+    key_num = num;
     m_textureNum = 5;
     if (num == 0) {
         move_pos = { -2.5, 0.1, -9.4 };

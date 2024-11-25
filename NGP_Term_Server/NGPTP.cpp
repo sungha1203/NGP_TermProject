@@ -1,6 +1,7 @@
 ﻿#include "error.h"
 #include "protocol.h"
 #include "PlayerInfo.h"
+#include "KeyInfo.h"
 #include <vector>
 #include <thread>
 #include "chrono"
@@ -12,12 +13,12 @@ DWORD WINAPI ClientThread(LPVOID socket);
 DWORD WINAPI SendPacket(LPVOID IpParam);
 
 std::vector<PlayerInfo> g_player(MaxUser);
-
+KeyInfo g_key;
 int g_clientNum{};
 
 void PlayerCollision();
 void CheckPlayersArrivalAtDoor();
-
+void BroadcastKeyState();
 void SetCursorPosition(int y) {
 	COORD coord = { 0, (SHORT)y };
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
@@ -208,6 +209,26 @@ DWORD WINAPI ClientThread(LPVOID socket)
 				}
 			}
 		}
+		else if (len == sizeof(GotKeyPacket))//클라에서 키를 획득했을때
+		{
+			GotKeyPacket* packet = reinterpret_cast<GotKeyPacket*>(buf);
+			SetCursorPosition(11);
+			g_key.key[packet->key_num] = 1;
+			g_key.keyNum = packet->key_num;
+			printf("현재 키 %d개 획득\n", g_key.GetHowManyKey());
+			{
+				// 클라에 키 획득 현황 알려주기
+				/*len = sizeof(GotKeyPacket);
+				GotKeyPacket* packet = new GotKeyPacket;
+				packet->type = SC_GOTKEY;
+				packet->HowManyKey = g_key.GetHowManyKey();
+				packet->key_num = g_key.keyNum;
+				send(client_sock, reinterpret_cast<char*>(&len), sizeof(int), 0);
+				send(client_sock, reinterpret_cast<char*>(packet), len, 0);
+				delete packet;*/
+				BroadcastKeyState();
+			}
+		}
 		else {
 			printf("알 수 없는 패킷 또는 잘못된 데이터 길이: %d\n", len);
 		}
@@ -250,4 +271,27 @@ void PlayerCollision()
 void CheckPlayersArrivalAtDoor()
 {
 
+}
+
+
+void BroadcastKeyState()//키 상태 브로드캐스트 함수
+{
+	int len = sizeof(GotKeyPacket);
+
+	// 키 상태를 모든 클라이언트에게 전송
+	for (int i = 0; i < MaxUser; ++i) {
+		if (g_player[i].AreUOnline() == TRUE) {
+			SOCKET client_socket = g_player[i].GetSocket();
+			if (client_socket != INVALID_SOCKET) {
+				GotKeyPacket packet;
+				packet.type = SC_GOTKEY;
+				packet.HowManyKey = g_key.GetHowManyKey(); // 획득한 키 개수
+				packet.key_num = g_key.keyNum;             // 마지막으로 획득한 키 번호
+
+				// 패킷 전송
+				send(client_socket, reinterpret_cast<char*>(&len), sizeof(int), 0);
+				send(client_socket, reinterpret_cast<char*>(&packet), len, 0);
+			}
+		}
+	}
 }
