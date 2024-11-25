@@ -83,5 +83,5 @@ bool PlayerInfo::AreUOnline()
 
 vec3 PlayerInfo::GetCameraAt()
 {
-	return vec3();
+	return m_cameraAt;
 }

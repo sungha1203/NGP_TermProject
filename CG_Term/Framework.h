@@ -68,7 +68,6 @@ public:
 	int id;
 
 
-
 	int         m_nGameObjects = 0;
 public:
 	vector <glm::vec3> D_vertex;

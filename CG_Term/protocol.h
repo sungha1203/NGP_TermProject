@@ -46,7 +46,7 @@ struct SC_AnotherPlayerCoordPacket {
 	float x;
 	float y;
 	float z;
-	vec3 cameraAt;
+	glm::vec3 cameraAt;
 };
 
 struct PlayerCoordPacket {
@@ -56,7 +56,7 @@ struct PlayerCoordPacket {
 	float x;
 	float y;
 	float z;
-	vec3 cameraAt;
+	glm::vec3 cameraAt;
 };
 struct ItemCoordPacket {
 	char size;

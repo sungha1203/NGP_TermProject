@@ -166,7 +166,8 @@ DWORD WINAPI ClientThread(LPVOID socket)
 			PlayerCoordPacket* packet = reinterpret_cast<PlayerCoordPacket*>(buf);
 			if (packet->id == 1) {   // 1번 플레이어 좌표 받기
 				SetCursorPosition(7);
-				printf("%d번 플레이어의 좌표: x = %.2f, y = %.2f, z = %.2f\n", packet->id, packet->x, packet->y, packet->z);
+				//printf("%d번 플레이어의 좌표: x = %.2f, y = %.2f, z = %.2f\n", packet->id, packet->x, packet->y, packet->z);
+				printf("%d번 플레이어의 방향: x = %.2f, y = %.2f, z = %.2f\n", packet->id, packet->cameraAt.x, packet->cameraAt.y, packet->cameraAt.z);
 				g_player[packet->id - 1].SetCoord(packet->x, packet->y, packet->z);
 				g_player[packet->id - 1].SetCameraAt(packet->cameraAt);
 				{
@@ -187,7 +188,8 @@ DWORD WINAPI ClientThread(LPVOID socket)
 			else if (packet->id == 2)					// 2번 플레이어 좌표 받기
 			{
 				SetCursorPosition(9);
-				printf("%d번 플레이어의 좌표: x = %.2f, y = %.2f, z = %.2f\n", packet->id, packet->x, packet->y, packet->z);
+				//printf("%d번 플레이어의 좌표: x = %.2f, y = %.2f, z = %.2f\n", packet->id, packet->x, packet->y, packet->z);
+				printf("%d번 플레이어의 방향: x = %.2f, y = %.2f, z = %.2f\n", packet->id, packet->cameraAt.x, packet->cameraAt.y, packet->cameraAt.z);
 				g_player[packet->id - 1].SetCoord(packet->x, packet->y, packet->z);
 				g_player[packet->id - 1].SetCameraAt(packet->cameraAt);
 				{

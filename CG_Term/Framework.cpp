@@ -429,6 +429,7 @@ GLvoid Framework::Timer(int value)
         //플레이어 충돌박스 센터 입력
         XMFLOAT3 center = { instance->camerapos.x,instance->camerapos.y, instance->camerapos.z };
         instance->m_ppObject[54]->m_box.Center = center;
+
         { //플레이어 좌표 send
             PlayerCoordPacket* packet = new PlayerCoordPacket;
             packet->id = My_Id;
@@ -438,6 +439,7 @@ GLvoid Framework::Timer(int value)
             packet->cameraAt = instance->camera.cameraAt; //플레이어가 바라보는 At벡터 정보
             instance->network.SendPacket(reinterpret_cast<char*>(packet), sizeof(PlayerCoordPacket));
         }
+
         glutTimerFunc(17, Timer, 1);
         break;
     case 2:         // 아이템 회전

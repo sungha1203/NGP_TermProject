@@ -87,7 +87,7 @@ void GameObject::draw()
             glm::vec3 cameraDirection = glm::normalize(framework->camera.cameraAt); // 카메라의 시선 방향 벡터
             cameraYaw = glm::degrees(atan2(cameraDirection.x, cameraDirection.z)); // Y축 회전 각도
 
-            model_matrix = glm::rotate(glm::mat4(1.0f), glm::radians(revolutionAngle[0]), AXIS_X);
+            //model_matrix = glm::rotate(glm::mat4(1.0f), glm::radians(revolutionAngle[0]), AXIS_X);
             pos = framework->camerapos;
         }
         else { //상대방 플레이어일 경우

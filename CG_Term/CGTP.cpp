@@ -92,6 +92,7 @@ DWORD WINAPI RecvThread(LPVOID lpParam)
 			gGameFramework.P2_pos.z = packet->z;
 			gGameFramework.At = packet->cameraAt;
 			//printf("%d번 플레이어님의 좌표 : x = %.2f, y = %.2f, z = %.2f\n", packet->id, packet->x, packet->y, packet->z);
+			//cout << "다른 플레이어 방향: " << gGameFramework.At.x << ", " << gGameFramework.At.y << ", " << gGameFramework.At.z << endl;
 			gGameFramework.sock_check = true;
 			break;
 		}
