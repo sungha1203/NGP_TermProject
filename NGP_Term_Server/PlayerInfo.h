@@ -9,10 +9,12 @@ class PlayerInfo
 {
 private:
 	Network* m_network;
-	int m_id;				// Å¬¶óÀÌ¾ðÆ® ¹øÈ£
-	float m_x, m_y, m_z;	// ÇÃ·¹ÀÌ¾î ÁÂÇ¥
-	bool m_online;			// ¿Â¶óÀÎÀÎÁö ¾Æ´ÑÁö
+	int m_id;				// Å¬ï¿½ï¿½ï¿½Ì¾ï¿½Æ® ï¿½ï¿½È£
+	float m_x, m_y, m_z;	// ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½Ç¥
+	bool m_online;			// ï¿½Â¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Æ´ï¿½ï¿½ï¿½
 	vec3 m_cameraAt;
+	bool m_door1;
+	bool m_door2;
 
 public:
 	PlayerInfo();
@@ -24,6 +26,8 @@ public:
 	void SetCoord(float x, float y, float z);
 	void SetOnline();
 	void SetCameraAt(vec3 cameraAt);
+	void SetDoor1Check(bool doorcheck);
+	void SetDoor2Check(bool doorcheck);
 
 	SOCKET GetSocket();
 	int GetId();
@@ -32,4 +36,6 @@ public:
 	float GetCoordZ();
 	bool AreUOnline();
 	vec3 GetCameraAt();
+	bool GetDoor1Check();
+	bool GetDoor2Check();
 };

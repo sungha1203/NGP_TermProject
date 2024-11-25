@@ -128,42 +128,22 @@ int main()
 
 DWORD WINAPI ClientThread(LPVOID socket)
 {
-	int retval;
 	//PlayerInfo* sock = reinterpret_cast<PlayerInfo*>(socket);
 	//SOCKET client_sock = sock->GetSocket();
 	SOCKET client_sock = reinterpret_cast<SOCKET>(socket);
 
 	int len;
-	char buf[BUFSIZE + 1];
+	char buf[BUFSIZE];
 
 	while (1) {
 		// 데이터 길이 수신
-		retval = recv(client_sock, (char*)(&len), sizeof(int), 0);
-		if (retval == SOCKET_ERROR) {
-			err_display("recv()"); // 오류 처리
-			break;
-		}
-		else if (retval == 0) {
-			printf("클라이언트가 연결을 종료했습니다.\n");
-			break;
-		}
-
-		// 데이터 길이 검증
-		if (len <= 0 || len > BUFSIZE) {
-			printf("잘못된 데이터 길이: %d\n", len);
-			continue; // 다음 루프로 넘어감
-		}
-
-		// 데이터 본문 수신
-		memset(buf, 0, sizeof(buf));
-		retval = recv(client_sock, buf, len, 0);
-		if (retval <= 0) {
-			printf("recv() 실패 또는 연결 종료.\n");
-			break;
-		}
+		recv(client_sock, (char*)(&len), sizeof(int), MSG_WAITALL);
+		recv(client_sock, buf, len, MSG_WAITALL);
 
 		// 수신된 데이터를 구조체로 변환
-		if (len == sizeof(PlayerCoordPacket)) {
+		switch (buf[0]) {
+		case CS_PlayerCoord:
+		{
 			PlayerCoordPacket* packet = reinterpret_cast<PlayerCoordPacket*>(buf);
 			if (packet->id == 1) {   // 1번 플레이어 좌표 받기
 				SetCursorPosition(7);
@@ -208,7 +188,52 @@ DWORD WINAPI ClientThread(LPVOID socket)
 					delete packet3;
 				}
 			}
+			else {
+				printf("알 수 없는 패킷 또는 잘못된 데이터 길이: %d\n", len);
+			}
+			break;
 		}
+		case CS_DoorCheck:
+		{
+			CS_DoorOpenPacket* packet = reinterpret_cast<CS_DoorOpenPacket*>(buf);
+			printf("\n");
+			if (packet->num == 1) {
+				g_player[0].SetDoor1Check(packet->value);
+				g_player[1].SetDoor1Check(packet->value);
+				{
+					// 1번 플레이어 문상태 클라한테 뿌려주기
+					len = sizeof(SC_DoorOpenPacket);
+					SC_DoorOpenPacket* packet4 = new SC_DoorOpenPacket;
+					packet4->type = SC_DoorCheck;
+					packet4->num = 1;
+					packet4->value = TRUE;
+					for (int i = 0; i < MaxUser; ++i) { // 모든 클라이언트 순회
+						if (g_player[i].AreUOnline() && g_player[i].GetSocket() != INVALID_SOCKET) {
+							send(g_player[i].GetSocket(), reinterpret_cast<char*>(&len), sizeof(int), 0);
+							send(g_player[i].GetSocket(), reinterpret_cast<char*>(packet4), len, 0);
+						}
+					}
+					delete packet4;
+				}
+			}
+			else if (packet->num == 2) {
+				g_player[0].SetDoor2Check(packet->value);
+				g_player[1].SetDoor2Check(packet->value);
+				{
+					// 2번 플레이어 문상태 클라한테 뿌려주기
+					len = sizeof(SC_DoorOpenPacket);
+					SC_DoorOpenPacket* packet5 = new SC_DoorOpenPacket;
+					packet5->type = SC_DoorCheck;
+					packet5->num = 2;
+					packet5->value = TRUE;
+					send(client_sock, reinterpret_cast<char*>(&len), sizeof(int), 0);
+					send(client_sock, reinterpret_cast<char*>(packet5), len, 0);
+					delete packet5;
+				}
+			}
+			break;
+		}
+		//고쳐야됌
 		else if (len == sizeof(GotKeyPacket))//클라에서 키를 획득했을때
 		{
 			GotKeyPacket* packet = reinterpret_cast<GotKeyPacket*>(buf);

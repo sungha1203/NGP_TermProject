@@ -33,14 +33,16 @@ constexpr int MaxUser = 2;		//클라 맥스 유저 수
 
 enum CS_PacketType				// 클라이언트 -> 서버
 {
-
+	CS_PlayerCoord = 100,		//
+	CS_DoorCheck = 101			//
 };
 
 enum SC_PacketType				// 서버 -> 클라이언트
 {
 	SC_EnterId = 0,				// 입장id
-	SC_AnotherCoord = 1,			// 상대방 좌표 패킷
-	SC_GOTKEY = 2			// 상대방 좌표 패킷
+	SC_AnotherCoord = 1,		// 상대방 좌표 패킷
+	SC_DoorCheck = 2,			// 문 상태
+	SC_GOTKEY = 3			// 상대방 좌표 패킷
 };
 
 
@@ -66,8 +68,8 @@ struct SC_AnotherPlayerCoordPacket {
 };
 
 struct PlayerCoordPacket {
-	char size;
 	char type;
+	char size;
 	int id;
 	float x;
 	float y;
@@ -89,8 +91,12 @@ struct GotKeyPacket {
 	int HowManyKey;
 	//bool IsFind; //찾았는지
 };
-struct DoorOpenPacket {
-	char size;
+struct SC_DoorOpenPacket {
+	char type;
+	int num; // 문 번호
+	bool value; // 조건체크
+};
+struct CS_DoorOpenPacket {
 	char type;
 	int num; // 문 번호
 	bool value; // 조건체크
