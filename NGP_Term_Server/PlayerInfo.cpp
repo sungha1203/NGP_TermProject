@@ -9,6 +9,8 @@ PlayerInfo::PlayerInfo()
 	m_y = 0.0f;
 	m_z = 0.0f;
 	m_cameraAt = vec3(0.0f, 0.0f, 0.0f);
+	m_door1 = false;
+	m_door2 = false;
 }
 
 PlayerInfo::~PlayerInfo() 
@@ -43,6 +45,16 @@ void PlayerInfo::SetOnline()
 void PlayerInfo::SetCameraAt(vec3 cameraAt)
 {
 	m_cameraAt = cameraAt;
+}
+
+void PlayerInfo::SetDoor1Check(bool doorcheck)
+{
+	m_door1 = doorcheck;
+}
+
+void PlayerInfo::SetDoor2Check(bool doorcheck)
+{
+	m_door2 = doorcheck;
 }
 
 //////////////////////////////////////////////////////////
@@ -84,4 +96,14 @@ bool PlayerInfo::AreUOnline()
 vec3 PlayerInfo::GetCameraAt()
 {
 	return m_cameraAt;
+}
+
+bool PlayerInfo::GetDoor1Check()
+{
+	return m_door1;
+}
+
+bool PlayerInfo::GetDoor2Check()
+{
+	return m_door2;
 }

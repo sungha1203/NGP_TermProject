@@ -96,6 +96,18 @@ DWORD WINAPI RecvThread(LPVOID lpParam)
 			gGameFramework.sock_check = true;
 			break;
 		}
+		case SC_DoorCheck:
+		{
+			SC_DoorOpenPacket* packet = reinterpret_cast<SC_DoorOpenPacket*>(buf);
+			if (packet->num == 1) {
+				g_door1 = packet->value;
+				printf("문 열게용~\n");
+			}
+			else if (packet->num == 2) {
+				g_door2 = packet->value;
+			}
+			break;
+		}
 		}
 	}
 }

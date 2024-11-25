@@ -2,7 +2,7 @@
 #include "network.h"
 #include "error.h"
 
-char* server_ip = (char*)"127.0.0.1";
+char* server_ip = (char*)"172.30.1.53";
 
 Network::Network()
 {

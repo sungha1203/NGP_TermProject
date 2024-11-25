@@ -23,6 +23,9 @@ class MAZE;
 class SPHERE;
 
 extern int My_Id; 
+extern bool g_door1;
+extern bool g_door2;
+
 class Framework
 {
 	Framework();
@@ -66,6 +69,7 @@ public:
 	vec3 P2_pos{}; //다른 클라 위치 정보
 	vec3 At{}; //다른 클라 방향 벡터
 	int id;
+
 
 
 	int         m_nGameObjects = 0;
