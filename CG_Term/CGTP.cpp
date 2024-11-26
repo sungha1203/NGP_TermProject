@@ -116,6 +116,21 @@ DWORD WINAPI RecvThread(LPVOID lpParam)
 			PlaySound(TEXT("keysound.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_NODEFAULT);
 			break;
 		}
+		case SC_GhostCoord:
+		{
+			GhostCoordPacketAll* packet = reinterpret_cast<GhostCoordPacketAll*>(buf);
+			int ghostCount = packet->ghostCount;
+			if (ghostCount > 20) ghostCount = 20;
+			// 각 귀신의 좌표를 업데이트
+			for (int i = 0; i < ghostCount; ++i) {
+				gGameFramework.Ghost_pos[i].x = packet->ghosts[i].X;
+				gGameFramework.Ghost_pos[i].y = packet->ghosts[i].y;
+				gGameFramework.Ghost_pos[i].z = packet->ghosts[i].z;
+				gGameFramework.Ghost_direction[i] = packet->ghosts[i].direction;
+				cout << i << ": " << packet->ghosts[i].direction << endl;
+			}
+			break;
+		}
 		}
 	}
 }

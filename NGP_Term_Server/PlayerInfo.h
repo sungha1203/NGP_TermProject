@@ -9,9 +9,9 @@ class PlayerInfo
 {
 private:
 	Network* m_network;
-	int m_id;				// Ŭ���̾�Ʈ ��ȣ
-	float m_x, m_y, m_z;	// �÷��̾� ��ǥ
-	bool m_online;			// �¶������� �ƴ���
+	int m_id;				
+	float m_x, m_y, m_z;	
+	bool m_online;			
 	vec3 m_cameraAt;
 	bool m_door1;
 	bool m_door2;
