@@ -54,14 +54,14 @@ int main()
 	retval = listen(listen_sock, SOMAXCONN);
 	if (retval == SOCKET_ERROR) err_quit("listen()");
 
-	HANDLE SendThread;
+	/*HANDLE SendThread;
 	SendThread = CreateThread(NULL, 0, SendPacket, 0, 0, 0);
 	if (SendThread == NULL) {
 		closesocket(listen_sock);
 	}
 	else {
 		CloseHandle(SendThread);
-	}
+	}*/
 
 	// 데이터 통신에 사용할 변수
 	struct sockaddr_in clientaddr;
@@ -233,8 +233,7 @@ DWORD WINAPI ClientThread(LPVOID socket)
 			}
 			break;
 		}
-		//고쳐야됌
-		else if (len == sizeof(GotKeyPacket))//클라에서 키를 획득했을때
+		case CS_GOTKEY:
 		{
 			GotKeyPacket* packet = reinterpret_cast<GotKeyPacket*>(buf);
 			SetCursorPosition(11);
@@ -243,25 +242,24 @@ DWORD WINAPI ClientThread(LPVOID socket)
 			printf("현재 키 %d개 획득\n", g_key.GetHowManyKey());
 			{
 				// 클라에 키 획득 현황 알려주기
-				/*len = sizeof(GotKeyPacket);
+				len = sizeof(GotKeyPacket);
 				GotKeyPacket* packet = new GotKeyPacket;
 				packet->type = SC_GOTKEY;
 				packet->HowManyKey = g_key.GetHowManyKey();
 				packet->key_num = g_key.keyNum;
 				send(client_sock, reinterpret_cast<char*>(&len), sizeof(int), 0);
 				send(client_sock, reinterpret_cast<char*>(packet), len, 0);
-				delete packet;*/
+				delete packet;
 				BroadcastKeyState();
 			}
+			break;
 		}
-		else {
-			printf("알 수 없는 패킷 또는 잘못된 데이터 길이: %d\n", len);
+
+		// 소켓 닫기
+		closesocket(client_sock);
+		return 0;
 		}
 	}
-
-	// 소켓 닫기
-	closesocket(client_sock);
-	return 0;
 }
 
 DWORD WINAPI SendPacket(LPVOID IpParam)

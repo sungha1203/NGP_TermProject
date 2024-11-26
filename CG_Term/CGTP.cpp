@@ -106,12 +106,14 @@ DWORD WINAPI RecvThread(LPVOID lpParam)
 			else if (packet->num == 2) {
 				g_door2 = packet->value;
 			}
+			break;
+		}
 		case SC_GOTKEY:
 		{
 			GotKeyPacket* packet = reinterpret_cast<GotKeyPacket*>(buf);
 			gGameFramework.howManyKey = packet->HowManyKey;
 			gGameFramework.m_ppObject[packet->key_num + 7]->exist = false;
-			PlaySound(TEXT("keysound.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_NODEFAULT); 
+			PlaySound(TEXT("keysound.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_NODEFAULT);
 			break;
 		}
 		}

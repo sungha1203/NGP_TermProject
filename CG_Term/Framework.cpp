@@ -819,6 +819,7 @@ void Framework::objectcollision()
         if (pow((m_ppObject[i + 7]->move_pos.x - camerapos.x), 2) + pow((m_ppObject[i + 7]->move_pos.z - camerapos.z), 2) + pow((m_ppObject[i + 7]->move_pos.y - camerapos.y), 2) < 0.04 && m_ppObject[i + 7]->exist == true) {   //키먹기
             { //획득 키 넘버 send (키넘버는 0,1,2)
                 GotKeyPacket* packet = new GotKeyPacket;
+				packet->type = CS_GOTKEY;
                 packet->key_num = m_ppObject[i + 7]->key_num;    
                 packet->HowManyKey = howManyKey;
                 instance->network.SendPacket(reinterpret_cast<char*>(packet), sizeof(GotKeyPacket));

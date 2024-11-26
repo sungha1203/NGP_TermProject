@@ -21,7 +21,7 @@ enum CS_PacketType				// 클라이언트 -> 서버
 {
 	CS_PlayerCoord = 100,		//
 	CS_DoorCheck = 101,			//
-	CS_GOTKEY = 101
+	CS_GOTKEY = 102
 };
 
 enum SC_PacketType				// 서버 -> 클라이언트
