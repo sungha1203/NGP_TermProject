@@ -353,6 +353,9 @@ GLvoid Framework::Timer(int value)
 	switch (value) {
 	case Live:
 		instance->objectcollision();
+		if (instance->create_mode == true) {
+			instance->m_ppObject[51]->ability();
+			}
 		glutPostRedisplay();
 		glutTimerFunc(17, Timer, 0);
 		break;
@@ -795,24 +798,30 @@ void Framework::BuildObjects()
 void Framework::objectcollision()
 {
     for (int i = 0; i < 20; ++i) {
-        if (pow((m_ppObject[i + 32]->move_pos.x - camerapos.x), 2) + pow((m_ppObject[i + 32]->move_pos.z - camerapos.z), 2) + pow((m_ppObject[i + 32]->move_pos.y - camerapos.y), 2) < 0.04 && m_ppObject[i + 32]->exist == true && create_mode == false) {   //아이템먹기
-            
-            m_ppObject[i + 32]->exist = false;
-            PlaySound(TEXT("itemsound.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_NODEFAULT);
-            if (m_ppObject[i + 32]->m_ability == 3)//도르마무
-            {
-                camerapos.x = -12.0f;
-                camerapos.z = -9.5f;
-            }
-            else
-            {
-                m_ppObject[i + 32]->ability();
-                hintIndex = i + 32;
-            }
-        }
-        else if (create_mode == true) {
-            m_ppObject[51]->ability();
-        }
+		if (pow((m_ppObject[i + 32]->move_pos.x - camerapos.x), 2) + pow((m_ppObject[i + 32]->move_pos.z - camerapos.z), 2) + pow((m_ppObject[i + 32]->move_pos.y - camerapos.y), 2) < 0.04 && m_ppObject[i + 32]->exist == true && create_mode == false)
+		{   //아이템먹기
+
+			//m_ppObject[i + 32]->exist = false;
+			//PlaySound(TEXT("itemsound.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_NODEFAULT);
+			GotItemPacket* packet = new GotItemPacket;
+			packet->type = CS_GOTITEM;
+			packet->item_num = m_ppObject[i + 32]->item_num;
+			instance->network.SendPacket(reinterpret_cast<char*>(packet), sizeof(GotItemPacket)); 
+			//    if (m_ppObject[i + 32]->m_ability == 3)//도르마무
+			//    {
+			//        camerapos.x = -12.0f;
+			//        camerapos.z = -9.5f;
+			//    }
+			//    else
+			//    {
+			//        m_ppObject[i + 32]->ability();
+			//        hintIndex = i + 32;
+			//    }
+			//}
+			//else if (create_mode == true) {
+			//    m_ppObject[51]->ability();
+			//}
+		}
     }
 
     for (int i = 0; i < 3; ++i) {
@@ -824,9 +833,6 @@ void Framework::objectcollision()
                 packet->HowManyKey = howManyKey;
                 instance->network.SendPacket(reinterpret_cast<char*>(packet), sizeof(GotKeyPacket));
             }
-            //m_ppObject[i + 7]->exist = false;
-            //PlaySound(TEXT("keysound.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_NODEFAULT);
-            //howManyKey++;
         }
     }
     if (!creativemode) {

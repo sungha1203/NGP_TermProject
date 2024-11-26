@@ -293,6 +293,7 @@ itemObject::itemObject(int num) :GameObject()
     color.g = 1.0f;
     color.b = 0.0f;
     m_textureNum = 1;
+    item_num = num;
     if (num == 0) {
         move_pos = { -9.05f,0.1f,-9.4f };
         m_ability = 1;
