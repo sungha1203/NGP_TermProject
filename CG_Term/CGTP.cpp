@@ -127,7 +127,6 @@ DWORD WINAPI RecvThread(LPVOID lpParam)
 				gGameFramework.Ghost_pos[i].y = packet->ghosts[i].y;
 				gGameFramework.Ghost_pos[i].z = packet->ghosts[i].z;
 				gGameFramework.Ghost_direction[i] = packet->ghosts[i].direction;
-				cout << i << ": " << packet->ghosts[i].direction << endl;
 			}
 			break;
 		}
