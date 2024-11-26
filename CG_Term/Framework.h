@@ -25,6 +25,7 @@ class SPHERE;
 extern int My_Id; 
 extern bool g_door1;
 extern bool g_door2;
+extern bool g_ending;
 
 class Framework
 {

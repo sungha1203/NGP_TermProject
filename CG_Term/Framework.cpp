@@ -9,6 +9,7 @@
 int My_Id = -1;
 bool g_door1 = FALSE;
 bool g_door2 = FALSE;
+bool g_ending = FALSE;
 
 Framework* Framework::instance = nullptr;
 Framework::Framework()
@@ -137,7 +138,14 @@ GLvoid Framework::drawScene(GLvoid)
 			instance->m_ppObject[i + 12]->draw();
 		}
 
-		if (instance->howManyKey == 3 && instance->camerapos.x < -13.0f) {
+		if (instance->howManyKey == 3 && instance->camerapos.x < -13.0f || g_ending == TRUE) {
+			if (g_ending == FALSE) {
+				CS_GameOverPacket* packet = new CS_GameOverPacket;
+				packet->type = CS_Ending;
+				packet->value = TRUE;
+				instance->network.SendPacket(reinterpret_cast<char*>(packet), sizeof(CS_GameOverPacket));
+				delete packet;
+			}
 			instance->camerapos.x = -12.0f;
 			instance->camerapos.y = 0.2f;
 			instance->camerapos.z = -9.5f;

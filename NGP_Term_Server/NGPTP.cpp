@@ -254,6 +254,23 @@ DWORD WINAPI ClientThread(LPVOID socket)
 			}
 			break;
 		}
+		case CS_Ending:
+		{
+			CS_GameOverPacket* packet = reinterpret_cast<CS_GameOverPacket*>(buf);
+			{
+				SC_GameOverPacket* packet6 = new SC_GameOverPacket;
+				packet6->type = SC_Ending;
+				packet6->value = packet->value;
+				for (int i = 0; i < MaxUser; ++i) { // 모든 클라이언트 순회
+					if (g_player[i].AreUOnline() && g_player[i].GetSocket() != INVALID_SOCKET) {
+						send(g_player[i].GetSocket(), reinterpret_cast<char*>(&len), sizeof(int), 0);
+						send(g_player[i].GetSocket(), reinterpret_cast<char*>(packet6), len, 0);
+					}
+				}
+				delete packet6;
+			}
+			break;
+		}
 
 		// 소켓 닫기
 		closesocket(client_sock);

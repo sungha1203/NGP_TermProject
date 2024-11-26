@@ -116,6 +116,12 @@ DWORD WINAPI RecvThread(LPVOID lpParam)
 			PlaySound(TEXT("keysound.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_NODEFAULT);
 			break;
 		}
+		case SC_Ending:
+		{
+			SC_GameOverPacket* packet = reinterpret_cast<SC_GameOverPacket*>(buf);
+			g_ending = packet->value;
+			printf("GAME CLEAR!!!!!");
+		}
 		}
 	}
 }
