@@ -62,6 +62,9 @@ public:
     vec3 At; //다른 클라이언트 방향 벡터 정보
     int id{}; //클라이언트ID
 
+    //�ͽ� ��ġ �� ���� ����
+    vec3 Ghost_pos;
+    int Ghost_direction;
 
     bool sock_check = false; //다른 클라이언트가 접속했는지 여부
     //플레이어간 충돌처리용
@@ -104,10 +107,11 @@ public:
     hintObject();
     ~hintObject();
 };
+
 class ghostObject : public GameObject
 {
 public:
-    ghostObject(int num);
+    ghostObject();
     void Move(int movetype);
     ~ghostObject();
 };

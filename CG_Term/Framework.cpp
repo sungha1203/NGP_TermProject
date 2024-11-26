@@ -135,6 +135,10 @@ GLvoid Framework::drawScene(GLvoid)
 		}
 
 		for (int i = 0; i < 20; ++i) {//ghost
+			instance->m_ppObject[i + 12]->Ghost_pos.x = instance->Ghost_pos[i].x;
+			instance->m_ppObject[i + 12]->Ghost_pos.y = instance->Ghost_pos[i].y;
+			instance->m_ppObject[i + 12]->Ghost_pos.z = instance->Ghost_pos[i].z;
+			instance->m_ppObject[i + 12]->Ghost_direction = instance->Ghost_direction[i];
 			instance->m_ppObject[i + 12]->draw();
 		}
 
@@ -320,11 +324,6 @@ GLvoid Framework::KeyBoardFunc(unsigned char key, int x, int y)
 	{
 
 	}
-	/*if (AABBcollision()) {
-	   printf("충돌했습니다!!\n");
-	}
-	else
-	   printf("충돌안함\n");*/
 	glutPostRedisplay();
 }
 
@@ -369,17 +368,6 @@ GLvoid Framework::Timer(int value)
 		break;
 
 	case CamMove:
-
-		for (int i = 0; i < 10; i++)
-		{
-			instance->m_ppObject[i + 12]->Move(1);
-		}
-
-		for (int i = 10; i < 20; ++i)
-		{
-			instance->m_ppObject[i + 12]->Move(2);
-		}
-
 		switch (instance->camera.direction)
 		{
 		case Up:
@@ -457,7 +445,14 @@ GLvoid Framework::Timer(int value)
 			instance->network.SendPacket(reinterpret_cast<char*>(packet), sizeof(PlayerCoordPacket));
 			delete packet;
 		}
-
+		{
+			//클라 접속 여부에 따른 귀신 패킷 전송
+			Ghostcheck* packet = new Ghostcheck;
+			packet->type = CS_GhostCoord;
+			packet->id = My_Id;
+			instance->network.SendPacket(reinterpret_cast<char*>(packet), sizeof(Ghostcheck));
+			delete packet;
+		}
 		glutTimerFunc(17, Timer, 1);
 		break;
 	case 2:         // 아이템 회전
@@ -638,7 +633,7 @@ void Framework::BuildObjects()
     m_ppObject[nObjects++] = new modeObject(0);
     m_ppObject[nObjects++] = new modeObject(1);
     for (int i = 0; i < 20; ++i) {
-        m_ppObject[nObjects++] = new ghostObject(i);
+        m_ppObject[nObjects++] = new ghostObject();
     }
     for (int i = 0; i < 20; ++i) {
         m_ppObject[nObjects++] = new itemObject(i);
@@ -845,9 +840,8 @@ void Framework::objectcollision()
     }
     if (!creativemode) {
         for (int i = 0; i < 20; ++i) {
-            if (pow((m_ppObject[i + 12]->move_pos.x - camerapos.x), 2) + pow((m_ppObject[i + 12]->move_pos.z - camerapos.z), 2) + pow((m_ppObject[i + 12]->move_pos.y - camerapos.y), 2) < 0.01) {   //아이템먹기
+            if (pow((m_ppObject[i + 12]->Ghost_pos.x - camerapos.x), 2) + pow((m_ppObject[i + 12]->Ghost_pos.z - camerapos.z), 2) + pow((m_ppObject[i + 12]->Ghost_pos.y - camerapos.y), 2) < 0.01) {
                 camerapos = { -12.0f,0.2f,-9.5f };
-
 			}
 		}
 	}

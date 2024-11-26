@@ -155,7 +155,12 @@ void GameObject::draw()
         model_matrix = glm::rotate(model_matrix, glm::radians(revolutionAngle[1]), AXIS_Y);
         //model_matrix = glm::rotate(model_matrix, glm::radians(revolutionAngle[0]), AXIS_X);
 
-        model_matrix = glm::translate(model_matrix, (move_pos));
+        if (m_textureNum == 6) { //±Í½Å ÀÏ°æ¿ì
+            model_matrix = glm::translate(model_matrix, (Ghost_pos));
+        }
+        else {
+            model_matrix = glm::translate(model_matrix, (move_pos));
+        }
 
         model_matrix = glm::rotate(model_matrix, glm::radians(rotateAngle[2]), AXIS_Z);
         model_matrix = glm::rotate(model_matrix, glm::radians(rotateAngle[0]), AXIS_X);
@@ -488,30 +493,12 @@ hintObject::hintObject() :GameObject()
 hintObject::~hintObject()
 {
 }
-ghostObject::ghostObject(int num) :GameObject()
+ghostObject::ghostObject() :GameObject()
 {
-    random_device rd;
-    default_random_engine dre(rd());
-    uniform_real_distribution<float> urd(0.01, 0.04);
     color.r = 1.0f;
     color.g = 1.0f;
     color.b = 1.0f;
     m_textureNum = 6;
-    for (int i = 0; i < 10; ++i)
-    {
-        if (num == i) {
-            move_pos = { -10.0 + 2 * (i + 1) - 0.5f, 0.2, -11.0 };
-        }
-    }
-
-    for (int i = 10; i < 20; ++i)
-    {
-        if (num == i) {
-            move_pos = { 11.0f, 0.2, -10.0 + 2 * ((i - 10) + 1) - 0.5 };
-            rotateAngle[1] = 90;
-        }
-    }
-    speed = urd(dre);
     ReadObj("Ghost.obj", m_vertex, m_normal, m_vt);
     SetVBO();
 }

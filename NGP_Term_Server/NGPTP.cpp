@@ -2,7 +2,9 @@
 #include "protocol.h"
 #include "PlayerInfo.h"
 #include "KeyInfo.h"
+#include "GhostInfo.h"
 #include <vector>
+#include <array>
 #include <thread>
 #include "chrono"
 #include <mutex>
@@ -10,9 +12,10 @@
 std::mutex g_playerMutex;
 
 DWORD WINAPI ClientThread(LPVOID socket);
-DWORD WINAPI SendPacket(LPVOID IpParam);
+DWORD WINAPI SendGhostPacket(LPVOID IpParam);
 
 std::vector<PlayerInfo> g_player(MaxUser);
+std::vector<GhostInfo> g_ghost;
 KeyInfo g_key;
 int g_clientNum{};
 
@@ -28,6 +31,11 @@ void SetCursorPosition(int y) {
 int main()
 {
 	int retval;
+
+	//귀신 정보 위치
+	for (int i = 0; i < MaxGhost; ++i) {
+		g_ghost.emplace_back(i);
+	}
 
 	for (int i = 0; i < MaxUser; ++i) {
 		g_player[i].SetSocket(INVALID_SOCKET);
@@ -54,15 +62,6 @@ int main()
 	// listen()
 	retval = listen(listen_sock, SOMAXCONN);
 	if (retval == SOCKET_ERROR) err_quit("listen()");
-
-	/*HANDLE SendThread;
-	SendThread = CreateThread(NULL, 0, SendPacket, 0, 0, 0);
-	if (SendThread == NULL) {
-		closesocket(listen_sock);
-	}
-	else {
-		CloseHandle(SendThread);
-	}*/
 
 	// 데이터 통신에 사용할 변수
 	struct sockaddr_in clientaddr;
@@ -109,7 +108,6 @@ int main()
 			else {
 				CloseHandle(hThread);
 			}
-
 			// 클라이언트 수 증가
 			++g_clientNum;
 			printf("현재 접속 클라이언트 수 : %d / %d\n", g_clientNum, MaxUser);
@@ -138,6 +136,7 @@ DWORD WINAPI ClientThread(LPVOID socket)
 
 	while (1) {
 		// 데이터 길이 수신
+		ZeroMemory(buf, sizeof(buf));
 		recv(client_sock, (char*)(&len), sizeof(int), MSG_WAITALL);
 		recv(client_sock, buf, len, MSG_WAITALL);
 
@@ -149,7 +148,7 @@ DWORD WINAPI ClientThread(LPVOID socket)
 			if (packet->id == 1) {   // 1번 플레이어 좌표 받기
 				SetCursorPosition(7);
 				//printf("%d번 플레이어의 좌표: x = %.2f, y = %.2f, z = %.2f\n", packet->id, packet->x, packet->y, packet->z);
-				printf("%d번 플레이어의 방향: x = %.2f, y = %.2f, z = %.2f\n", packet->id, packet->cameraAt.x, packet->cameraAt.y, packet->cameraAt.z);
+				//printf("%d번 플레이어의 방향: x = %.2f, y = %.2f, z = %.2f\n", packet->id, packet->cameraAt.x, packet->cameraAt.y, packet->cameraAt.z);
 				g_player[packet->id - 1].SetCoord(packet->x, packet->y, packet->z);
 				g_player[packet->id - 1].SetCameraAt(packet->cameraAt);
 				{
@@ -274,34 +273,51 @@ DWORD WINAPI ClientThread(LPVOID socket)
 			}
 			break;
 		}
+		case CS_GhostCoord:
+		{
+			GhostCoordPacketAll packetAll; // 전송용 패킷 생성
+			packetAll.type = SC_GhostCoord;
+			packetAll.ghostCount = MaxGhost; // 귀신 개수 설정 (최대 20)
+			int len = sizeof(GhostCoordPacketAll);              // 패킷 크기
+			for (int i = 0; i < MaxGhost; ++i) {
+				//귀신 좌표를 최신화
+				if (i < 10) g_ghost[i].move(1);
+				if (i > 9) g_ghost[i].move(2);
+			}
+			for (int i = 0; i < MaxGhost; ++i) {
+				//귀신 좌표 한번에 묶어서 packetAll에 저장.
+				packetAll.ghosts[i].X = g_ghost[i].GetCoordX();
+				packetAll.ghosts[i].y = g_ghost[i].GetCoordY();
+				packetAll.ghosts[i].z = g_ghost[i].GetCoordZ();
+				packetAll.ghosts[i].direction = g_ghost[i].GetDirection();
+			}
 
+			Ghostcheck* packet = reinterpret_cast<Ghostcheck*>(buf);
+			if (packet->id == 1) {
+				// 패킷 전송 로직
+				if (g_player[0].AreUOnline() == TRUE) {
+					if (g_player[0].GetSocket() != INVALID_SOCKET) {
+						send(g_player[0].GetSocket(), reinterpret_cast<char*>(&len), sizeof(int), 0);
+						send(g_player[0].GetSocket(), reinterpret_cast<char*>(&packetAll), len, 0);
+					}
+				}
+			}
+			else {
+				// 패킷 전송 로직
+				if (g_player[1].AreUOnline() == TRUE) {
+					if (g_player[1].GetSocket() != INVALID_SOCKET) {
+						send(g_player[1].GetSocket(), reinterpret_cast<char*>(&len), sizeof(int), 0);
+						send(g_player[1].GetSocket(), reinterpret_cast<char*>(&packetAll), len, 0);
+					}
+				}
+			}
+			break;
+		}
 		// 소켓 닫기
 		closesocket(client_sock);
 		return 0;
 		}
 	}
-}
-
-DWORD WINAPI SendPacket(LPVOID IpParam)
-{
-	const int PACKET_SEND_INTERVAL_MS = 100;                         // 100ms (초당 10패킷)
-	SC_AnotherPlayerCoordPacket* packet = new SC_AnotherPlayerCoordPacket; // 패킷 데이터 생성
-	int len = sizeof(SC_AnotherPlayerCoordPacket);                      // 패킷 크기
-
-	while (true) {
-		// 패킷 전송 로직
-		for (int i = 0; i < MaxUser; ++i) {
-			if (g_player[i].AreUOnline() == TRUE) {
-				if (g_player[i].GetSocket() != INVALID_SOCKET) {
-					send(g_player[i].GetSocket(), reinterpret_cast<char*>(&len), sizeof(int), 0);
-					send(g_player[i].GetSocket(), reinterpret_cast<char*>(packet), len, 0);
-				}
-			}
-		}
-		// 전송 간격 설정 (100ms 대기)
-		std::this_thread::sleep_for(std::chrono::milliseconds(PACKET_SEND_INTERVAL_MS));
-	}
-	delete packet; // 루프 종료 시 패킷 해제
 }
 
 //플레이어들끼리 충돌 처리

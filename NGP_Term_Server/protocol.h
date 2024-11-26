@@ -30,6 +30,7 @@
 using namespace glm;
 
 constexpr int MaxUser = 2;		//클라 맥스 유저 수
+constexpr int MaxGhost = 20;	//귀신 맥스 수
 
 enum CS_PacketType				// 클라이언트 -> 서버
 {
@@ -37,7 +38,8 @@ enum CS_PacketType				// 클라이언트 -> 서버
 	CS_DoorCheck = 101,			//
 	CS_GOTKEY = 102,
 	CS_GOTITEM = 103,
-	CS_Ending = 104
+	CS_Ending = 104,
+	CS_GhostCoord = 105
 };
 
 enum SC_PacketType				// 서버 -> 클라이언트
@@ -47,7 +49,8 @@ enum SC_PacketType				// 서버 -> 클라이언트
 	SC_DoorCheck = 2,			// 문 상태
 	SC_GOTKEY = 3,			// 키 패킷
 	SC_GOTITEM = 4,			// 아이템 패킷
-	SC_Ending = 5
+	SC_Ending = 5,
+	SC_GhostCoord = 6
 };
 
 
@@ -111,12 +114,26 @@ struct CS_DoorOpenPacket {
 	bool value; // 조건체크
 };
 struct GhostCoordPacket {
-	char size;
-	char type;
 	float X;
 	float y;
 	float z;
-	int num; // 귀신 번호
+	int direction; //귀신이 바라보는 방향
+};
+
+struct GhostCoordPacketAll {
+	char type;
+	int ghostCount;                   // 귀신 개수
+	GhostCoordPacket ghosts[20];      // 모든 귀신의 정보
+};
+
+struct Ghostcheck {
+	char type;
+	int id;
+};
+
+struct GameOverPacket {
+	char size;
+	char type;
 };
 struct SC_GameOverPacket {
 	char type;
