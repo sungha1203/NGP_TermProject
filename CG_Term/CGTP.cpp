@@ -123,17 +123,20 @@ DWORD WINAPI RecvThread(LPVOID lpParam)
 			if (gGameFramework.create_mode == true) {
 				gGameFramework.m_ppObject[51]->ability();
 			}
-			else if(gGameFramework.m_ppObject[packet->item_num + 32]->m_ability!=3)
+			else if (gGameFramework.m_ppObject[packet->item_num + 32]->m_ability != 3)
 			{
 				gGameFramework.m_ppObject[packet->item_num + 32]->ability();
 				gGameFramework.hintIndex = packet->item_num + 32;
 			}
 			PlaySound(TEXT("itemsound.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_NODEFAULT);
+			break;
+		}
 		case SC_Ending:
 		{
 			SC_GameOverPacket* packet = reinterpret_cast<SC_GameOverPacket*>(buf);
 			g_ending = packet->value;
 			printf("GAME CLEAR!!!!!");
+			break;
 		}
 		}
 	}
