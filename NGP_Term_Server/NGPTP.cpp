@@ -19,6 +19,7 @@ int g_clientNum{};
 void PlayerCollision();
 void CheckPlayersArrivalAtDoor();
 void BroadcastKeyState();
+void BroadcastItemState(int item_num);
 void SetCursorPosition(int y) {
 	COORD coord = { 0, (SHORT)y };
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
@@ -241,16 +242,18 @@ DWORD WINAPI ClientThread(LPVOID socket)
 			g_key.keyNum = packet->key_num;
 			printf("현재 키 %d개 획득\n", g_key.GetHowManyKey());
 			{
-				// 클라에 키 획득 현황 알려주기
-				len = sizeof(GotKeyPacket);
-				GotKeyPacket* packet = new GotKeyPacket;
-				packet->type = SC_GOTKEY;
-				packet->HowManyKey = g_key.GetHowManyKey();
-				packet->key_num = g_key.keyNum;
-				send(client_sock, reinterpret_cast<char*>(&len), sizeof(int), 0);
-				send(client_sock, reinterpret_cast<char*>(packet), len, 0);
-				delete packet;
+				// 클라에 키 획득 현황 알려주기			
 				BroadcastKeyState();
+			}
+			break;
+		}
+		case CS_GOTITEM:
+		{
+			GotItemPacket* packet = reinterpret_cast<GotItemPacket*>(buf);
+			int item_num = packet->item_num;
+			{
+				// 클라에 아이템 획득 현황 알려주기				
+				BroadcastItemState(item_num);
 			}
 			break;
 		}
@@ -327,6 +330,26 @@ void BroadcastKeyState()//키 상태 브로드캐스트 함수
 				packet.type = SC_GOTKEY;
 				packet.HowManyKey = g_key.GetHowManyKey(); // 획득한 키 개수
 				packet.key_num = g_key.keyNum;             // 마지막으로 획득한 키 번호
+
+				// 패킷 전송
+				send(client_socket, reinterpret_cast<char*>(&len), sizeof(int), 0);
+				send(client_socket, reinterpret_cast<char*>(&packet), len, 0);
+			}
+		}
+	}
+}
+void BroadcastItemState(int item_num)//키 상태 브로드캐스트 함수
+{
+	int len = sizeof(GotItemPacket);
+
+	// 키 상태를 모든 클라이언트에게 전송
+	for (int i = 0; i < MaxUser; ++i) {
+		if (g_player[i].AreUOnline() == TRUE) {
+			SOCKET client_socket = g_player[i].GetSocket();
+			if (client_socket != INVALID_SOCKET) {
+				GotItemPacket packet;
+				packet.type = SC_GOTITEM;
+				packet.item_num = item_num;             // 마지막으로 획득한 아이템 번호
 
 				// 패킷 전송
 				send(client_socket, reinterpret_cast<char*>(&len), sizeof(int), 0);

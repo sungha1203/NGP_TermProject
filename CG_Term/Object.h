@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include"Framework.h"
 class Framework;
 class GameObject
@@ -18,14 +18,14 @@ public:
     GLuint m_VBONormal;
     GLuint m_VBOTexture;
     GLuint m_VBOColor;
-    void SetVBO() {//vbo°´Ã¼ »ı¼º
+    void SetVBO() {//vboê°ì²´ ìƒì„±
         glGenBuffers(1, &m_VBOVertex);
         glGenBuffers(1, &m_VBONormal);
         glGenBuffers(1, &m_VBOTexture);
     }
 public:
-    glm::mat4 model_matrix = glm::mat4(1.0f); //´ÜÀ§Çà·Ä·Î ÃÊ±âÈ­
-    glm::mat4 parents_matrix = glm::mat4(1.0f); //´ÜÀ§Çà·Ä·Î ÃÊ±âÈ­
+    glm::mat4 model_matrix = glm::mat4(1.0f); //ë‹¨ìœ„í–‰ë ¬ë¡œ ì´ˆê¸°í™”
+    glm::mat4 parents_matrix = glm::mat4(1.0f); //ë‹¨ìœ„í–‰ë ¬ë¡œ ì´ˆê¸°í™”
     float rotateAngle[3] = { 0 };
     float revolutionAngle[3] = { 0 };
     float scale[3] = { 2.0f,1.0f,0.5f };
@@ -34,36 +34,37 @@ public:
     void draw();
     int m_textureNum = -1;
 public:
-    int m_ability; //item¿ë
+    int m_ability; //itemìš©
     bool exist = true;
     int item_navi = 0;
     int item_where = 0;
     int item_Key_where = 0;
-    bool Å©¸®¿¡ÀÌÆ¼ºê¸ğµå = false;
+    bool í¬ë¦¬ì—ì´í‹°ë¸Œëª¨ë“œ = false;
     void ability();
     void startTimer1();
     void startTimer2();
-    bool m_direction = true;//ghost¿ë
+    bool m_direction = true;//ghostìš©
     int m_direcN = 0;
     float speed = 0.0f;
     int direction = 1;
     void Move(int movetype);
-    int m_modeN;   //mode¿ë
-    int m_IsOpen = 0;//door¿ë
+    int m_modeN;   //modeìš©
+    int m_IsOpen = 0;//doorìš©
     int m_OpenN = 0;
-    int key_num;//key¿ë
+    int key_num;//keyìš©
+    int item_num;//itemìš©
     Framework* framework;
     void setFramework(Framework* fw) {
         framework = fw;
     }
 public:
-    vec3 P2_pos; //´Ù¸¥ Å¬¶óÀÌ¾ğÆ® À§Ä¡ Á¤º¸
-    vec3 At; //´Ù¸¥ Å¬¶óÀÌ¾ğÆ® ¹æÇâ º¤ÅÍ Á¤º¸
-    int id{}; //Å¬¶óÀÌ¾ğÆ®ID
+    vec3 P2_pos; //ë‹¤ë¥¸ í´ë¼ì´ì–¸íŠ¸ ìœ„ì¹˜ ì •ë³´
+    vec3 At; //ë‹¤ë¥¸ í´ë¼ì´ì–¸íŠ¸ ë°©í–¥ ë²¡í„° ì •ë³´
+    int id{}; //í´ë¼ì´ì–¸íŠ¸ID
 
 
-    bool sock_check = false; //´Ù¸¥ Å¬¶óÀÌ¾ğÆ®°¡ Á¢¼ÓÇß´ÂÁö ¿©ºÎ
-    //ÇÃ·¹ÀÌ¾î°£ Ãæµ¹Ã³¸®¿ë
+    bool sock_check = false; //ë‹¤ë¥¸ í´ë¼ì´ì–¸íŠ¸ê°€ ì ‘ì†í–ˆëŠ”ì§€ ì—¬ë¶€
+    //í”Œë ˆì´ì–´ê°„ ì¶©ëŒì²˜ë¦¬ìš©
     BoundingBox m_box;
 };
 
@@ -123,7 +124,7 @@ public:
     ~playerCheck();
 };
 ////////////////////////////////////////////////////////////////
-//P2ÀÇ °ÔÀÓ ¿ÀºêÁ§Æ®
+//P2ì˜ ê²Œì„ ì˜¤ë¸Œì íŠ¸
 class OtherPlayer : public GameObject
 {
 public:

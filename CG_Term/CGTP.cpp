@@ -116,6 +116,19 @@ DWORD WINAPI RecvThread(LPVOID lpParam)
 			PlaySound(TEXT("keysound.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_NODEFAULT);
 			break;
 		}
+		case SC_GOTITEM:
+		{
+			GotItemPacket* packet = reinterpret_cast<GotItemPacket*>(buf);
+			gGameFramework.m_ppObject[packet->item_num + 32]->exist = false;
+			if (gGameFramework.create_mode == true) {
+				gGameFramework.m_ppObject[51]->ability();
+			}
+			else if(gGameFramework.m_ppObject[packet->item_num + 32]->m_ability!=3)
+			{
+				gGameFramework.m_ppObject[packet->item_num + 32]->ability();
+				gGameFramework.hintIndex = packet->item_num + 32;
+			}
+			PlaySound(TEXT("itemsound.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_NODEFAULT);
 		case SC_Ending:
 		{
 			SC_GameOverPacket* packet = reinterpret_cast<SC_GameOverPacket*>(buf);

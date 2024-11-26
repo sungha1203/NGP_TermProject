@@ -22,7 +22,8 @@ enum CS_PacketType				// 클라이언트 -> 서버
 	CS_PlayerCoord = 100,		//
 	CS_DoorCheck = 101,			//
 	CS_GOTKEY = 102,
-	CS_Ending = 103
+	CS_GOTITEM=103,
+	CS_Ending = 104
 };
 
 enum SC_PacketType				// 서버 -> 클라이언트
@@ -30,8 +31,9 @@ enum SC_PacketType				// 서버 -> 클라이언트
 	SC_EnterId = 0,				// 입장id
 	SC_AnotherCoord = 1,		// 상대방 좌표 패킷
 	SC_DoorCheck = 2,			// 문 상태
-	SC_GOTKEY = 3,			// 상대방 좌표 패킷
-	SC_Ending = 4
+	SC_GOTKEY = 3,				
+	SC_GOTITEM= 4,
+	SC_Ending = 5
 };
 
 // 1. 플레이어 좌표
@@ -85,6 +87,10 @@ struct GotKeyPacket {
 	int key_num;
 	int HowManyKey;
 	//bool IsFind; //찾았는지
+};
+struct GotItemPacket {
+	char type;
+	int item_num;
 };
 struct SC_DoorOpenPacket {
 	char type;
