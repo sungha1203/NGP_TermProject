@@ -10,17 +10,16 @@
 #include <mutex>
 
 std::mutex g_playerMutex;
+std::mutex g_keyMutex;
+std::mutex g_itemMutex;
 
 DWORD WINAPI ClientThread(LPVOID socket);
-DWORD WINAPI SendGhostPacket(LPVOID IpParam);
 
 std::vector<PlayerInfo> g_player(MaxUser);
 std::vector<GhostInfo> g_ghost;
 KeyInfo g_key;
 int g_clientNum{};
 
-void PlayerCollision();
-void CheckPlayersArrivalAtDoor();
 void BroadcastKeyState();
 void BroadcastItemState(int item_num);
 void SetCursorPosition(int y) {
@@ -127,8 +126,6 @@ int main()
 
 DWORD WINAPI ClientThread(LPVOID socket)
 {
-	//PlayerInfo* sock = reinterpret_cast<PlayerInfo*>(socket);
-	//SOCKET client_sock = sock->GetSocket();
 	SOCKET client_sock = reinterpret_cast<SOCKET>(socket);
 
 	int len;
@@ -147,7 +144,7 @@ DWORD WINAPI ClientThread(LPVOID socket)
 			PlayerCoordPacket* packet = reinterpret_cast<PlayerCoordPacket*>(buf);
 			if (packet->id == 1) {   // 1번 플레이어 좌표 받기
 				SetCursorPosition(7);
-				//printf("%d번 플레이어의 좌표: x = %.2f, y = %.2f, z = %.2f\n", packet->id, packet->x, packet->y, packet->z);
+				printf("%d번 플레이어의 좌표: x = %.2f, y = %.2f, z = %.2f\n", packet->id, packet->x, packet->y, packet->z);
 				//printf("%d번 플레이어의 방향: x = %.2f, y = %.2f, z = %.2f\n", packet->id, packet->cameraAt.x, packet->cameraAt.y, packet->cameraAt.z);
 				g_player[packet->id - 1].SetCoord(packet->x, packet->y, packet->z);
 				g_player[packet->id - 1].SetCameraAt(packet->cameraAt);
@@ -169,8 +166,8 @@ DWORD WINAPI ClientThread(LPVOID socket)
 			else if (packet->id == 2)					// 2번 플레이어 좌표 받기
 			{
 				SetCursorPosition(9);
-				//printf("%d번 플레이어의 좌표: x = %.2f, y = %.2f, z = %.2f\n", packet->id, packet->x, packet->y, packet->z);
-				printf("%d번 플레이어의 방향: x = %.2f, y = %.2f, z = %.2f\n", packet->id, packet->cameraAt.x, packet->cameraAt.y, packet->cameraAt.z);
+				printf("%d번 플레이어의 좌표: x = %.2f, y = %.2f, z = %.2f\n", packet->id, packet->x, packet->y, packet->z);
+				//printf("%d번 플레이어의 방향: x = %.2f, y = %.2f, z = %.2f\n", packet->id, packet->cameraAt.x, packet->cameraAt.y, packet->cameraAt.z);
 				g_player[packet->id - 1].SetCoord(packet->x, packet->y, packet->z);
 				g_player[packet->id - 1].SetCameraAt(packet->cameraAt);
 				{
@@ -237,10 +234,11 @@ DWORD WINAPI ClientThread(LPVOID socket)
 		{
 			GotKeyPacket* packet = reinterpret_cast<GotKeyPacket*>(buf);
 			SetCursorPosition(11);
-			g_key.key[packet->key_num] = 1;
-			g_key.keyNum = packet->key_num;
-			printf("현재 키 %d개 획득\n", g_key.GetHowManyKey());
 			{
+				std::lock_guard<std::mutex> lock(g_keyMutex);
+				g_key.key[packet->key_num] = 1;
+				g_key.keyNum = packet->key_num;
+				printf("현재 키 %d개 획득\n", g_key.GetHowManyKey());
 				// 클라에 키 획득 현황 알려주기			
 				BroadcastKeyState();
 			}
@@ -249,8 +247,9 @@ DWORD WINAPI ClientThread(LPVOID socket)
 		case CS_GOTITEM:
 		{
 			GotItemPacket* packet = reinterpret_cast<GotItemPacket*>(buf);
-			int item_num = packet->item_num;
 			{
+				std::lock_guard<std::mutex> lock(g_itemMutex);
+				int item_num = packet->item_num;
 				// 클라에 아이템 획득 현황 알려주기				
 				BroadcastItemState(item_num);
 			}
@@ -319,19 +318,6 @@ DWORD WINAPI ClientThread(LPVOID socket)
 		}
 	}
 }
-
-//플레이어들끼리 충돌 처리
-void PlayerCollision()
-{
-
-}
-
-//문열릴 때 동시에 플레어가 도착 하였는지 확인
-void CheckPlayersArrivalAtDoor()
-{
-
-}
-
 
 void BroadcastKeyState()//키 상태 브로드캐스트 함수
 {
