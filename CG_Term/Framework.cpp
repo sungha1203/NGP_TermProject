@@ -434,6 +434,9 @@ GLvoid Framework::Timer(int value)
 		XMFLOAT3 center = { instance->camerapos.x,instance->camerapos.y, instance->camerapos.z };
 		instance->m_ppObject[54]->m_box.Center = center;
 
+		XMFLOAT3 center2 = { instance->P2_pos.x,instance->P2_pos.y, instance->P2_pos.z };
+		instance->m_ppObject[55]->m_box.Center = center2;
+
 		{ //플레이어 좌표 send
 			PlayerCoordPacket* packet = new PlayerCoordPacket;
 			packet->type = CS_PlayerCoord;

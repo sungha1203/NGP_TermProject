@@ -1,8 +1,10 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "network.h"
 #include "error.h"
 
-char* server_ip = (char*)"172.30.1.26";
+//char* server_ip = (char*)"172.30.1.26";//ì„±í•˜ sever
+char* server_ip = (char*)"183.101.111.60";//ì¸í˜ sever
+
 
 Network::Network()
 {
@@ -22,19 +24,19 @@ SOCKET Network::getsock()
 
 bool Network::IsConnect()
 {
-    // À©¼Ó ÃÊ±âÈ­
+    // ìœˆì† ì´ˆê¸°í™”
     WSADATA wsa;
     if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) 
         return false;
 
-    // ¼ÒÄÏ »ı¼º
+    // ì†Œì¼“ ìƒì„±
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock == INVALID_SOCKET) {
         err_quit("socket()");
         return false;
     }
 
-    // ¼­¹ö ¿¬°á
+    // ì„œë²„ ì—°ê²°
     struct sockaddr_in serveraddr;
     memset(&serveraddr, 0, sizeof(serveraddr));
     serveraddr.sin_family = AF_INET;
@@ -52,19 +54,19 @@ bool Network::IsConnect()
 
 void Network::SendPacket(char* packet, int size)
 {
-    // ¼ÒÄÏ À¯È¿¼º °Ë»ç
+    // ì†Œì¼“ ìœ íš¨ì„± ê²€ì‚¬
     if (sock == INVALID_SOCKET) {
-        printf("¼ÒÄÏÀÌ À¯È¿ÇÏÁö ¾Ê½À´Ï´Ù. µ¥ÀÌÅÍ¸¦ º¸³¾ ¼ö ¾ø½À´Ï´Ù.\n");
+        printf("ì†Œì¼“ì´ ìœ íš¨í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤. ë°ì´í„°ë¥¼ ë³´ë‚¼ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.\n");
         return;
     }
 
     int result = send(sock, reinterpret_cast<char*>(&size), sizeof(int), 0);
     if (result == SOCKET_ERROR) {
-        printf("send() µ¥ÀÌÅÍ ±æÀÌ Àü¼Û ½ÇÆĞ1: %d\n", WSAGetLastError());
+        printf("send() ë°ì´í„° ê¸¸ì´ ì „ì†¡ ì‹¤íŒ¨1: %d\n", WSAGetLastError());
     }
     result = send(sock, packet, size, 0);
     if (result == SOCKET_ERROR) {
-        printf("send() µ¥ÀÌÅÍ Àü¼Û ½ÇÆĞ2: %d\n", WSAGetLastError());
+        printf("send() ë°ì´í„° ì „ì†¡ ì‹¤íŒ¨2: %d\n", WSAGetLastError());
     }
-    //printf("ÆĞÅ¶ Àü¼Û ¼º°ø: %d ¹ÙÀÌÆ®\n", size);      //ÀßÀüÇØÁö³ª È®ÀÎÇØº¸·Á°í ¾´°ÅÀÓ
+    //printf("íŒ¨í‚· ì „ì†¡ ì„±ê³µ: %d ë°”ì´íŠ¸\n", size);      //ì˜ì „í•´ì§€ë‚˜ í™•ì¸í•´ë³´ë ¤ê³  ì“´ê±°ì„
 }
