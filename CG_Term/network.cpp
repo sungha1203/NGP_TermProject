@@ -2,7 +2,8 @@
 #include "network.h"
 #include "error.h"
 
-char* server_ip = (char*)"172.30.1.53";//성하 sever
+//char* server_ip = (char*)"172.30.1.53";//성하 sever
+char* server_ip = (char*)"172.30.1.72";//지환 sever
 //char* server_ip = (char*)"183.101.111.60";//인혁 sever
 
 

@@ -185,26 +185,11 @@ void GameObject::draw()
 
 }
 
-void GameObject::Move(int movetype)
+void GameObject::Move()
 {
-    if (movetype == 1) {
-        move_pos.z += direction * speed;
-        if (move_pos.z > 11.0 || move_pos.z < -11.0)
-        {
-            direction *= -1;
-            rotateAngle[1] += 180 * direction;
-        }
-    }
-    else
-    {
-        move_pos.x += direction * speed;
-        if (move_pos.x > 11.0 || move_pos.x < -11.0)
-        {
-            direction *= -1;
-            rotateAngle[1] += 180 * direction;
-        }
-    }
+    rotateAngle[1] += 180.0f;
 }
+
 void GameObject::ability()
 {
     if (m_ability == 0) {  //다 보여주기
@@ -493,12 +478,19 @@ hintObject::hintObject() :GameObject()
 hintObject::~hintObject()
 {
 }
-ghostObject::ghostObject() :GameObject()
+ghostObject::ghostObject(int num) :GameObject()
 {
     color.r = 1.0f;
     color.g = 1.0f;
     color.b = 1.0f;
     m_textureNum = 6;
+    if (num == 1) {
+        Prev_Ghost_direction = 1;
+    }
+    else {
+        Prev_Ghost_direction = -1;
+        rotateAngle[1] -= 90.0f;
+    }
     ReadObj("Ghost.obj", m_vertex, m_normal, m_vt);
     SetVBO();
 }

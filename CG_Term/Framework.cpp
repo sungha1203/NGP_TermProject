@@ -139,6 +139,8 @@ GLvoid Framework::drawScene(GLvoid)
 			instance->m_ppObject[i + 12]->Ghost_pos.y = instance->Ghost_pos[i].y;
 			instance->m_ppObject[i + 12]->Ghost_pos.z = instance->Ghost_pos[i].z;
 			instance->m_ppObject[i + 12]->Ghost_direction = instance->Ghost_direction[i];
+			if (instance->m_ppObject[i + 12]->Prev_Ghost_direction != instance->m_ppObject[i + 12]->Ghost_direction) instance->m_ppObject[i + 12]->Move();
+			instance->m_ppObject[i + 12]->Prev_Ghost_direction = instance->Ghost_direction[i];
 			instance->m_ppObject[i + 12]->draw();
 		}
 
@@ -636,7 +638,8 @@ void Framework::BuildObjects()
     m_ppObject[nObjects++] = new modeObject(0);
     m_ppObject[nObjects++] = new modeObject(1);
     for (int i = 0; i < 20; ++i) {
-        m_ppObject[nObjects++] = new ghostObject();
+		if(i < 10) m_ppObject[nObjects++] = new ghostObject(1);
+		if(i > 9) m_ppObject[nObjects++] = new ghostObject(2);
     }
     for (int i = 0; i < 20; ++i) {
         m_ppObject[nObjects++] = new itemObject(i);

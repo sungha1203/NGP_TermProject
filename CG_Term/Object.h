@@ -47,7 +47,7 @@ public:
     int m_direcN = 0;
     float speed = 0.0f;
     int direction = 1;
-    void Move(int movetype);
+    void Move();
     int m_modeN;   //mode용
     int m_IsOpen = 0;//door용
     int m_OpenN = 0;
@@ -62,9 +62,10 @@ public:
     vec3 At; //다른 클라이언트 방향 벡터 정보
     int id{}; //클라이언트ID
 
-    //�ͽ� ��ġ �� ���� ����
+    //귀신 전용 변수
     vec3 Ghost_pos;
     int Ghost_direction;
+    int Prev_Ghost_direction;
 
     bool sock_check = false; //다른 클라이언트가 접속했는지 여부
     //플레이어간 충돌처리용
@@ -111,8 +112,7 @@ public:
 class ghostObject : public GameObject
 {
 public:
-    ghostObject();
-    void Move(int movetype);
+    ghostObject(int num);
     ~ghostObject();
 };
 class modeObject : public GameObject
